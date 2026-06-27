@@ -44,6 +44,47 @@ export const SearchPage: React.FC = () => {
   
   const [searching, setSearching] = useState(false);
 
+  // Default recommendations states
+  const [defaultIssues, setDefaultIssues] = useState<SearchIssue[]>([]);
+  const [defaultCities, setDefaultCities] = useState<SearchCity[]>([]);
+  const [defaultUsers, setDefaultUsers] = useState<SearchUser[]>([]);
+  const [loadingDefaults, setLoadingDefaults] = useState(false);
+
+  useEffect(() => {
+    const fetchDefaults = async () => {
+      setLoadingDefaults(true);
+      try {
+        // Fetch 5 latest issues
+        const { data: issuesData } = await supabase
+          .from('issue_reports')
+          .select('id, title, status, severity')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (issuesData) setDefaultIssues(issuesData as any[]);
+
+        // Fetch 5 cities
+        const { data: citiesData } = await supabase
+          .from('cities')
+          .select('id, name, slug, states(name)')
+          .limit(5);
+        if (citiesData) setDefaultCities(citiesData as any[]);
+
+        // Fetch 5 recommended users (by contribution score)
+        const { data: usersData } = await supabase
+          .from('profiles')
+          .select('id, full_name, username, role, avatar_url')
+          .order('contribution_score', { ascending: false })
+          .limit(5);
+        if (usersData) setDefaultUsers(usersData as any[]);
+      } catch (err) {
+        console.error('Failed to load search recommendations:', err);
+      } finally {
+        setLoadingDefaults(false);
+      }
+    };
+    fetchDefaults();
+  }, []);
+
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!query.trim()) return;
@@ -133,78 +174,156 @@ export const SearchPage: React.FC = () => {
       </Card>
 
       <div className="flex flex-col gap-3">
-        {searching ? (
-          [1, 2].map((n) => (
+        {searching || (loadingDefaults && !query.trim()) ? (
+          [1, 2, 3].map((n) => (
             <Card key={n} className="skeleton" style={{ width: '100%', height: '70px' }} />
           ))
-        ) : activeTab === 'issues' ? (
-          issues.length > 0 ? (
-            issues.map((issue) => (
-              <Card
-                key={issue.id}
-                className="card-interactive flex justify-between align-center"
-                style={{ cursor: 'pointer', padding: '1rem' }}
-                onClick={() => navigate(`/issues/${issue.id}`)}
-              >
-                <div>
-                  <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{issue.title}</strong>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                    Severity: {issue.severity}
-                  </div>
-                </div>
-                <Badge variant="primary">{issue.status.replace(/_/g, ' ')}</Badge>
-              </Card>
-            ))
-          ) : (
-            query.trim() && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No issues found matching "{query}"</p>
-          )
-        ) : activeTab === 'cities' ? (
-          cities.length > 0 ? (
-            cities.map((city) => (
-              <Card
-                key={city.id}
-                className="card-interactive flex justify-between align-center"
-                style={{ cursor: 'pointer', padding: '1rem' }}
-                onClick={() => navigate(`/city/${city.slug}`)}
-              >
-                <div className="flex align-center gap-2">
-                  <MapPin size={20} color="var(--primary)" />
+        ) : !query.trim() ? (
+          /* Render Default Recommendations */
+          activeTab === 'issues' ? (
+            <>
+              <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                Latest Active Issues in the Platform
+              </h4>
+              {defaultIssues.map((issue) => (
+                <Card
+                  key={issue.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/issues/${issue.id}`)}
+                >
                   <div>
-                    <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{city.name}</strong>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                      {city.states?.name}
-                    </span>
+                    <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{issue.title}</strong>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      Severity: {issue.severity}
+                    </div>
                   </div>
-                </div>
-                <Button variant="secondary" size="sm">View Board</Button>
-              </Card>
-            ))
+                  <Badge variant="primary">{issue.status.replace(/_/g, ' ')}</Badge>
+                </Card>
+              ))}
+            </>
+          ) : activeTab === 'cities' ? (
+            <>
+              <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                Top Active Cities & Municipalities
+              </h4>
+              {defaultCities.map((city) => (
+                <Card
+                  key={city.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/city/${city.slug}`)}
+                >
+                  <div className="flex align-center gap-2">
+                    <MapPin size={20} color="var(--primary)" />
+                    <div>
+                      <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{city.name}</strong>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                        {city.states?.name}
+                      </span>
+                    </div>
+                  </div>
+                  <Button variant="secondary" size="sm">Explore Page</Button>
+                </Card>
+              ))}
+            </>
           ) : (
-            query.trim() && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No cities found matching "{query}"</p>
+            <>
+              <h4 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+                Recommended Highly Active Community Leaders
+              </h4>
+              {defaultUsers.map((userItem) => (
+                <Card
+                  key={userItem.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/profile/${userItem.username}`)}
+                >
+                  <div className="flex align-center gap-3">
+                    <Avatar name={userItem.full_name} src={userItem.avatar_url} size={36} />
+                    <div>
+                      <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{userItem.full_name}</strong>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{userItem.username}</div>
+                    </div>
+                  </div>
+                  <Badge variant={userItem.role === 'authority' ? 'success' : 'neutral'}>
+                    {userItem.role}
+                  </Badge>
+                </Card>
+              ))}
+            </>
           )
         ) : (
-          users.length > 0 ? (
-            users.map((userItem) => (
-              <Card
-                key={userItem.id}
-                className="card-interactive flex justify-between align-center"
-                style={{ cursor: 'pointer', padding: '1rem' }}
-                onClick={() => navigate(`/profile/${userItem.username}`)}
-              >
-                <div className="flex align-center gap-3">
-                  <Avatar name={userItem.full_name} src={userItem.avatar_url} size={36} />
+          /* Render Active Search Results */
+          activeTab === 'issues' ? (
+            issues.length > 0 ? (
+              issues.map((issue) => (
+                <Card
+                  key={issue.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/issues/${issue.id}`)}
+                >
                   <div>
-                    <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{userItem.full_name}</strong>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{userItem.username}</div>
+                    <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{issue.title}</strong>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                      Severity: {issue.severity}
+                    </div>
                   </div>
-                </div>
-                <Badge variant={userItem.role === 'authority' ? 'success' : 'neutral'}>
-                  {userItem.role}
-                </Badge>
-              </Card>
-            ))
+                  <Badge variant="primary">{issue.status.replace(/_/g, ' ')}</Badge>
+                </Card>
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No issues found matching "{query}"</p>
+            )
+          ) : activeTab === 'cities' ? (
+            cities.length > 0 ? (
+              cities.map((city) => (
+                <Card
+                  key={city.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/city/${city.slug}`)}
+                >
+                  <div className="flex align-center gap-2">
+                    <MapPin size={20} color="var(--primary)" />
+                    <div>
+                      <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{city.name}</strong>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                        {city.states?.name}
+                      </span>
+                    </div>
+                  </div>
+                  <Button variant="secondary" size="sm">Explore Page</Button>
+                </Card>
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No cities found matching "{query}"</p>
+            )
           ) : (
-            query.trim() && <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No profiles found matching "{query}"</p>
+            users.length > 0 ? (
+              users.map((userItem) => (
+                <Card
+                  key={userItem.id}
+                  className="card-interactive flex justify-between align-center"
+                  style={{ cursor: 'pointer', padding: '1rem' }}
+                  onClick={() => navigate(`/profile/${userItem.username}`)}
+                >
+                  <div className="flex align-center gap-3">
+                    <Avatar name={userItem.full_name} src={userItem.avatar_url} size={36} />
+                    <div>
+                      <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{userItem.full_name}</strong>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{userItem.username}</div>
+                    </div>
+                  </div>
+                  <Badge variant={userItem.role === 'authority' ? 'success' : 'neutral'}>
+                    {userItem.role}
+                  </Badge>
+                </Card>
+              ))
+            ) : (
+              <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>No profiles found matching "{query}"</p>
+            )
           )
         )}
       </div>

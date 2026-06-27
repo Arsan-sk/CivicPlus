@@ -187,8 +187,8 @@ export const LandingPage: React.FC = () => {
 
       {/* 3. How It Works */}
       <section className="flex flex-col gap-8">
-        <div style={{ textAlign: 'center' }}>
-          <h2>How CivicPulse Solves Issues</h2>
+        <div style={{ textAlign: 'center', paddingTop: 30 }}>
+          <h2 >How CivicPulse Solves Issues</h2>
           <p style={{ color: 'var(--text-muted)', maxWidth: '32rem', margin: '0.5rem auto 0' }}>
             A four-step collaborative flow designed to verify problems and track real outcomes.
           </p>
@@ -278,7 +278,7 @@ export const LandingPage: React.FC = () => {
 
       {/* 4. Features Showcase */}
       <section className="grid grid-cols-2 gap-8 align-center">
-        <div className="flex flex-col gap-4" style={{ textAlign: 'left' }}>
+        <div className="flex flex-col gap-4" style={{ textAlign: 'left', paddingTop: 50, paddingBottom: 100 }}>
           <h2>Core Intelligent Automation</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
             CivicPulse bridges advanced technology and community participation to eliminate duplicate reporting and optimize civic routing.
