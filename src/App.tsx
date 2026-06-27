@@ -10,7 +10,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import IssuesPage from './pages/IssuesPage';
-import CreateIssuePage from './pages/CreateIssuePage';
+import { CreatePage } from './pages/CreatePage';
 import IssueDetailPage from './pages/IssueDetailPage';
 import SearchPage from './pages/SearchPage';
 import ProfilePage from './pages/ProfilePage';
@@ -18,6 +18,7 @@ import CityPage from './pages/CityPage';
 import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import { AdminPage } from './pages/AdminPage';
 
 function App() {
   return (
@@ -59,10 +60,18 @@ function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/profile/:username" element={<ProfilePage />} />
             <Route path="/city/:slug" element={<CityPage />} />
-            <Route path="/create" element={<CreateIssuePage />} />
+            <Route path="/create" element={<CreatePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           {/* Catch-all Redirect */}

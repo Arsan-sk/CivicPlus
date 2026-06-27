@@ -8,6 +8,7 @@ import {
   User,
   ChartBar,
   Gear,
+  ShieldCheck,
 } from '@phosphor-icons/react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -17,13 +18,16 @@ export const Sidebar: React.FC = () => {
   const links = [
     { to: '/home', label: 'Home', icon: House },
     { to: '/issues', label: 'Issues', icon: Warning },
-    { to: '/create', label: 'Report Issue', icon: PlusCircle },
+    { to: '/create', label: 'Create Post', icon: PlusCircle },
     { to: '/search', label: 'Search', icon: MagnifyingGlass },
     ...(profile
       ? [
           { to: `/profile/${profile.username}`, label: 'Profile', icon: User },
           { to: '/dashboard', label: 'Dashboard', icon: ChartBar },
         ]
+      : []),
+    ...(profile?.role === 'admin'
+      ? [{ to: '/admin', label: 'Admin Panel', icon: ShieldCheck }]
       : []),
     { to: '/settings', label: 'Settings', icon: Gear },
   ];

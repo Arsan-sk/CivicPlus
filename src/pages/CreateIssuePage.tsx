@@ -35,7 +35,11 @@ interface DuplicateIssue {
   support_count: number;
 }
 
-export const CreateIssuePage: React.FC = () => {
+interface CreateIssuePageProps {
+  onBack?: () => void;
+}
+
+export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
   const { profile } = useAuthStore();
   const navigate = useNavigate();
 
@@ -174,7 +178,16 @@ export const CreateIssuePage: React.FC = () => {
 
   // Check for duplicates
   const checkForDuplicates = async () => {
-    if (!profile?.city_id || !selectedCategory) return;
+    if (!selectedCategory) {
+      toast.error('Please select a category first.');
+      return;
+    }
+    
+    if (!profile?.city_id) {
+      // If city is not configured for the profile, skip checks and proceed
+      setStep(5);
+      return;
+    }
     
     try {
       const { data } = await supabase
@@ -252,8 +265,28 @@ export const CreateIssuePage: React.FC = () => {
   };
 
   const handleSubmitIssue = async () => {
-    if (!profile?.city_id) return;
+    if (!profile) {
+      toast.error('Session profile not loaded. Please login.');
+      return;
+    }
     setSubmitting(true);
+
+    let userCityId = profile?.city_id;
+    if (!userCityId) {
+      // Fallback: pick first city in database
+      try {
+        const { data: firstCity } = await supabase.from('cities').select('id').limit(1).single();
+        userCityId = firstCity?.id || null;
+      } catch (err) {
+        console.error('Failed to resolve city fallback:', err);
+      }
+    }
+
+    if (!userCityId) {
+      toast.error('City location context missing. Please select your city in settings.');
+      setSubmitting(false);
+      return;
+    }
 
     try {
       let publicImageUrl = '';
@@ -298,7 +331,7 @@ export const CreateIssuePage: React.FC = () => {
           description,
           category_id: selectedCategory,
           severity: selectedSeverity,
-          city_id: profile.city_id,
+          city_id: userCityId,
           latitude: latitude || 19.076,
           longitude: longitude || 72.877,
           address: address || 'Near main road',
@@ -337,7 +370,7 @@ export const CreateIssuePage: React.FC = () => {
   return (
     <div className="flex flex-col gap-6" style={{ maxWidth: '650px', margin: '0 auto', textAlign: 'left' }}>
       <div className="flex align-center gap-3">
-        {step > 1 && (
+        {step > 1 ? (
           <button
             onClick={() => setStep((prev) => (prev === 4 ? 3 : prev - 1))}
             className="btn btn-ghost btn-sm"
@@ -345,7 +378,15 @@ export const CreateIssuePage: React.FC = () => {
           >
             <ArrowLeft size={20} />
           </button>
-        )}
+        ) : onBack ? (
+          <button
+            onClick={onBack}
+            className="btn btn-ghost btn-sm"
+            style={{ borderRadius: '50%', padding: '8px' }}
+          >
+            <ArrowLeft size={20} />
+          </button>
+        ) : null}
         <div>
           <h2 style={{ fontSize: '1.75rem' }}>Report a Civic Issue</h2>
           <p style={{ color: 'var(--text-muted)' }}>Help authorities fix community hazards in your area.</p>
