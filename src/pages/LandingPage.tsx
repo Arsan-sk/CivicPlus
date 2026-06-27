@@ -28,7 +28,7 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-16 py-8" style={{ minHeight: 'calc(100vh - 120px)' }}>
+    <div className="container flex flex-col gap-16 py-12" style={{ minHeight: 'calc(100vh - 64px)' }}>
       {/* 1. Hero Section */}
       <section className="grid grid-cols-2 gap-8 align-center py-8">
         <div className="flex flex-col gap-6" style={{ textAlign: 'left' }}>

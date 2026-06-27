@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sun, Moon, Bell, MapPin, SignOut } from '@phosphor-icons/react';
+import { Sun, Moon, Bell, MapPin, SignOut, List, X, ChartBar, Gear } from '@phosphor-icons/react';
 import { useAuthStore } from '../../store/authStore';
 import { Avatar } from '../ui/Avatar';
+import { Button } from '../ui/Button';
 import { supabase } from '../../lib/supabase';
 
 interface City {
@@ -24,6 +25,7 @@ export const TopBar: React.FC = () => {
   
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCityName, setSelectedCityName] = useState('Select City');
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -145,7 +147,7 @@ export const TopBar: React.FC = () => {
         {profile ? (
           <>
             <button
-              className="btn btn-ghost btn-sm"
+              className="btn btn-ghost btn-sm hide-mobile"
               style={{ borderRadius: '50%', width: '36px', height: '36px', padding: 0, position: 'relative' }}
               onClick={() => navigate('/notifications')}
             >
@@ -164,7 +166,7 @@ export const TopBar: React.FC = () => {
             </button>
 
             <div
-              className="flex align-center gap-2"
+              className="flex align-center gap-2 hide-mobile"
               onClick={() => navigate(`/profile/${profile.username}`)}
               style={{ cursor: 'pointer' }}
             >
@@ -189,6 +191,15 @@ export const TopBar: React.FC = () => {
             >
               <SignOut size={18} />
             </button>
+
+            <button
+              className="btn btn-ghost btn-sm show-tablet"
+              onClick={() => setMenuOpen(true)}
+              style={{ padding: '8px', borderRadius: '50%' }}
+              aria-label="Open Mobile Menu"
+            >
+              <List size={20} />
+            </button>
           </>
         ) : (
           <div className="flex gap-2">
@@ -201,7 +212,104 @@ export const TopBar: React.FC = () => {
           </div>
         )}
       </div>
+
+      {menuOpen && profile && (
+        <div className="mobile-drawer-overlay" onClick={() => setMenuOpen(false)}>
+          <div className="mobile-drawer-content" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between align-center border-b pb-3" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex align-center gap-2">
+                <Avatar name={profile.full_name} src={profile.avatar_url} size={36} />
+                <div>
+                  <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', display: 'block' }}>
+                    {profile.full_name}
+                  </strong>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{profile.username}</span>
+                </div>
+              </div>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setMenuOpen(false)}
+                style={{ borderRadius: '50%', padding: '6px' }}
+                aria-label="Close Mobile Menu"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <nav className="flex flex-col gap-2 flex-1 mt-4">
+              <button
+                className="sidebar-link"
+                onClick={() => {
+                  navigate('/dashboard');
+                  setMenuOpen(false);
+                }}
+              >
+                <ChartBar size={20} />
+                <span>Dashboard</span>
+              </button>
+              <button
+                className="sidebar-link"
+                onClick={() => {
+                  navigate('/settings');
+                  setMenuOpen(false);
+                }}
+              >
+                <Gear size={20} />
+                <span>Settings</span>
+              </button>
+            </nav>
+
+            <div className="border-t pt-4" style={{ borderColor: 'var(--border)' }}>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={async () => {
+                  setMenuOpen(false);
+                  await signOut();
+                }}
+                className="flex align-center gap-2 w-full"
+              >
+                <SignOut size={16} />
+                <span>Sign Out</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
+        .show-tablet {
+          display: none !important;
+        }
+        .mobile-drawer-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.5);
+          z-index: 1000;
+        }
+        .mobile-drawer-content {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 280px;
+          height: 100%;
+          background: var(--bg-card);
+          border-left: 1px solid var(--border);
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+        }
+        @media (max-width: 1024px) {
+          .hide-mobile {
+            display: none !important;
+          }
+          .show-tablet {
+            display: inline-flex !important;
+          }
+        }
         @media (max-width: 640px) {
           .hide-mobile {
             display: none !important;

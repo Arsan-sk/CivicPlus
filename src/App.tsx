@@ -17,6 +17,7 @@ import ProfilePage from './pages/ProfilePage';
 import CityPage from './pages/CityPage';
 import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   return (
@@ -45,39 +46,23 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Application Navigation Context Layout */}
-          <Route element={<AppLayout />}>
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route path="/home" element={<HomePage />} />
             <Route path="/issues" element={<IssuesPage />} />
             <Route path="/issues/:id" element={<IssueDetailPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/profile/:username" element={<ProfilePage />} />
             <Route path="/city/:slug" element={<CityPage />} />
-
-            {/* Guarded Auth Routes */}
-            <Route
-              path="/create"
-              element={
-                <ProtectedRoute>
-                  <CreateIssuePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/create" element={<CreateIssuePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Catch-all Redirect */}

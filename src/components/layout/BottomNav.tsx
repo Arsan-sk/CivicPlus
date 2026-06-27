@@ -30,9 +30,6 @@ export const BottomNav: React.FC = () => {
         right: 0,
         height: '60px',
         borderTop: '1px solid var(--border)',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
         zIndex: 100,
         padding: '0 0.5rem',
       }}
@@ -65,6 +62,8 @@ export const BottomNav: React.FC = () => {
         @media (max-width: 1024px) {
           .show-mobile-nav {
             display: flex;
+            justify-content: space-around;
+            align-items: center;
           }
         }
       `}</style>

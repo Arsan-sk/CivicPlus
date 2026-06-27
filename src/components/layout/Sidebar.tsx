@@ -44,7 +44,7 @@ export const Sidebar: React.FC = () => {
       }}
       className="hide-tablet"
     >
-      <nav className="flex flex-col gap-1 w-full">
+      <nav className="flex flex-col gap-1 w-full" style={{ gap: '4px' }}>
         {links.map((link) => {
           const Icon = link.icon;
           return (
@@ -52,16 +52,10 @@ export const Sidebar: React.FC = () => {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `btn btn-ghost justify-start w-full ${isActive ? 'active-nav-link' : ''}`
+                `sidebar-link ${isActive ? 'active' : ''}`
               }
-              style={({ isActive }) => ({
-                color: isActive ? 'var(--primary)' : 'var(--text-muted)',
-                backgroundColor: isActive ? 'var(--primary-light)' : 'transparent',
-                fontWeight: isActive ? 600 : 500,
-                textAlign: 'left',
-              })}
             >
-              <Icon size={20} weight={link.to === window.location.pathname ? 'fill' : 'regular'} />
+              <Icon size={20} />
               <span>{link.label}</span>
             </NavLink>
           );

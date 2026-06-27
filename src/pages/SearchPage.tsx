@@ -19,9 +19,9 @@ interface SearchCity {
   id: string;
   name: string;
   slug: string;
-  state: {
+  states?: {
     name: string;
-  };
+  } | null;
 }
 
 interface SearchUser {
@@ -54,13 +54,13 @@ export const SearchPage: React.FC = () => {
         const { data } = await supabase
           .from('issue_reports')
           .select('id, title, status, severity')
-          .ilike('title', `%${query.trim()}%`)
+          .or(`title.ilike.%${query.trim()}%,description.ilike.%${query.trim()}%`)
           .limit(10);
         setIssues(data as any[] || []);
       } else if (activeTab === 'cities') {
         const { data } = await supabase
           .from('cities')
-          .select('id, name, slug, state:states(name)')
+          .select('id, name, slug, states(name)')
           .ilike('name', `%${query.trim()}%`)
           .limit(10);
         setCities(data as any[] || []);
@@ -68,7 +68,7 @@ export const SearchPage: React.FC = () => {
         const { data } = await supabase
           .from('profiles')
           .select('id, full_name, username, role, avatar_url')
-          .ilike('full_name', `%${query.trim()}%`)
+          .or(`full_name.ilike.%${query.trim()}%,username.ilike.%${query.trim()}%`)
           .limit(10);
         setUsers(data as any[] || []);
       }
@@ -172,7 +172,7 @@ export const SearchPage: React.FC = () => {
                   <div>
                     <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{city.name}</strong>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                      {city.state?.name}
+                      {city.states?.name}
                     </span>
                   </div>
                 </div>

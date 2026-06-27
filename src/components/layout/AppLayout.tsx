@@ -12,7 +12,7 @@ export const AppLayout: React.FC = () => {
       <TopBar />
 
       {/* 2. Main Page Content Structure */}
-      <div className="flex flex-1 container" style={{ padding: 0, maxWidth: '1280px' }}>
+      <div className="flex flex-1" style={{ padding: 0, width: '100%' }}>
         {/* Left Sidebar (Desktop) */}
         <Sidebar />
 
@@ -20,10 +20,10 @@ export const AppLayout: React.FC = () => {
         <main
           style={{
             flex: 1,
-            padding: '1.5rem',
-            paddingBottom: '80px', // margin for mobile bottom nav
+            padding: '2rem 1.5rem',
             minWidth: 0, // prevents grid flex issues
           }}
+          className="app-main-content"
         >
           <Outlet />
         </main>
