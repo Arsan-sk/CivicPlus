@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sun, Moon, Bell, MapPin, SignOut, List, X, ChartBar, Gear } from '@phosphor-icons/react';
+import { Sun, Moon, Bell, MapPin, SignOut, List, X, ChartBar, Gear, ShieldCheck } from '@phosphor-icons/react';
 import { useAuthStore } from '../../store/authStore';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
@@ -302,6 +302,18 @@ export const TopBar: React.FC = () => {
                 <Gear size={20} />
                 <span>Settings</span>
               </button>
+              {profile.role === 'admin' && (
+                <button
+                  className="sidebar-link"
+                  onClick={() => {
+                    navigate('/admin');
+                    setMenuOpen(false);
+                  }}
+                >
+                  <ShieldCheck size={20} />
+                  <span>Admin Panel</span>
+                </button>
+              )}
             </nav>
 
             <div className="border-t pt-4" style={{ borderColor: 'var(--border)' }}>

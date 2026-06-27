@@ -39,7 +39,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  if (!user) {
+  if (!user || !profile) {
     // Redirect to login page and preserve original location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
