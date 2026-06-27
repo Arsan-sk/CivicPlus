@@ -24,6 +24,7 @@ interface AuthState {
   setSession: (session: any) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  setProfile: (profile: Profile) => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -82,5 +83,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (err) {
       console.error('Failed to refresh profile:', err);
     }
-  }
+  },
+
+  setProfile: (profile: Profile) => {
+    set({ profile });
+  },
 }));
