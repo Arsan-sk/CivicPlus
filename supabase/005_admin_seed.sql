@@ -1,57 +1,19 @@
 -- ============================================
 -- 005_ADMIN_SEED.SQL
--- Register admin user with credentials: admin@civicplus.com / password123
+-- Resolving Admin Authentication Database Seeding Instructions
 -- ============================================
 
--- 1. INSERT INTO AUTH.USERS TABLE
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  role,
-  aud
-) VALUES (
-  'ad311a77-3e3e-4b2a-8c5d-000000000000', -- static admin uuid
-  '00000000-0000-0000-0000-000000000000',
-  'admin@civicplus.com',
-  crypt('password123', gen_salt('bf')),
-  now(),
-  '{"provider": "email", "providers": ["email"]}',
-  '{"full_name": "Platform Admin", "username": "admin"}',
-  now(),
-  now(),
-  'authenticated',
-  'authenticated'
-) ON CONFLICT (id) DO NOTHING;
+-- 1. SQL CLEANUP COMMANDS
+-- If the Supabase Auth server throws status 500 AuthRetryableFetchErrors,
+-- execute the following SQL inside the Supabase SQL Editor to clean up database corruption:
+--
+-- DELETE FROM auth.users WHERE email = 'admin@civicplus.com';
+-- DELETE FROM public.profiles WHERE email = 'admin@civicplus.com';
 
--- 2. INSERT OR UPDATE PROFILE TO ENSURE ADMINISTRATIVE PRIVILEGES
-INSERT INTO public.profiles (
-  id,
-  full_name,
-  username,
-  email,
-  role,
-  avatar_url,
-  bio,
-  contribution_score,
-  created_at,
-  updated_at
-) VALUES (
-  'ad311a77-3e3e-4b2a-8c5d-000000000000',
-  'Platform Admin',
-  'admin',
-  'admin@civicplus.com',
-  'admin',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-  'CivicPulse platform systems administrator.',
-  999,
-  now(),
-  now()
-) ON CONFLICT (id) DO UPDATE 
-SET role = 'admin', contribution_score = 999, email = 'admin@civicplus.com';
+-- 2. AUTOMATED MIGRATION SEED
+-- Rather than raw SQL inserts (which bypass GoTrue validations and corrupt auth state),
+-- run the self-contained Node migration script from the project root:
+--
+-- node seed-admin.js
+--
+-- This script leverages the Supabase Admin API and handles user creations securely.
