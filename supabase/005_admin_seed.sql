@@ -35,6 +35,7 @@ INSERT INTO public.profiles (
   id,
   full_name,
   username,
+  email,
   role,
   avatar_url,
   bio,
@@ -45,6 +46,7 @@ INSERT INTO public.profiles (
   'ad311a77-3e3e-4b2a-8c5d-000000000000',
   'Platform Admin',
   'admin',
+  'admin@civicplus.com',
   'admin',
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
   'CivicPulse platform systems administrator.',
@@ -52,4 +54,4 @@ INSERT INTO public.profiles (
   now(),
   now()
 ) ON CONFLICT (id) DO UPDATE 
-SET role = 'admin', contribution_score = 999;
+SET role = 'admin', contribution_score = 999, email = 'admin@civicplus.com';

@@ -372,7 +372,11 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
       <div className="flex align-center gap-3">
         {step > 1 ? (
           <button
-            onClick={() => setStep((prev) => (prev === 4 ? 3 : prev - 1))}
+            onClick={() => setStep((prev) => {
+              if (prev === 5 && duplicates.length === 0) return 3;
+              if (prev === 4) return 3;
+              return prev - 1;
+            })}
             className="btn btn-ghost btn-sm"
             style={{ borderRadius: '50%', padding: '8px' }}
           >
@@ -668,8 +672,19 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
 
       {/* STEP 5: FINAL ROUTING PREVIEW & SUBMIT */}
       {step === 5 && (
-        <Card className="flex flex-col gap-5">
-          <h3 style={{ fontSize: '1.25rem' }}>Verify & Route Issue</h3>
+        <Card className="flex flex-col gap-6" style={{ padding: '2rem' }}>
+          <h3
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: 'var(--text-heading)',
+              borderBottom: '1px solid var(--border)',
+              paddingBottom: '0.75rem',
+              marginBottom: '0.25rem',
+            }}
+          >
+            Verify & Route Issue
+          </h3>
           
           <div
             style={{
