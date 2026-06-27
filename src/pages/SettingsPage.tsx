@@ -26,6 +26,7 @@ export const SettingsPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
 
   // Password form state
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
@@ -102,8 +103,16 @@ export const SettingsPage: React.FC = () => {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!profile || !profile.email) {
+      toast.error('Session profile is not loaded.');
+      return;
+    }
+    if (!currentPassword) {
+      toast.error('Current password is required.');
+      return;
+    }
     if (newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters.');
+      toast.error('New password must be at least 8 characters.');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -113,9 +122,23 @@ export const SettingsPage: React.FC = () => {
 
     setChangingPassword(true);
     try {
+      // 1. Verify current password by logging in again
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: profile.email,
+        password: currentPassword,
+      });
+
+      if (verifyError) {
+        toast.error('Current password verification failed. Please try again.');
+        setChangingPassword(false);
+        return;
+      }
+
+      // 2. Proceed with updates if successful
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast.success('Password changed successfully!');
+      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
@@ -251,6 +274,14 @@ export const SettingsPage: React.FC = () => {
         <Card className="flex flex-col gap-4">
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700 }}>Change Password</h3>
           <form onSubmit={handleChangePassword} className="flex flex-col gap-1">
+            <Input
+              label="Current Password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Enter current password"
+              required
+            />
             <Input
               label="New Password"
               type="password"

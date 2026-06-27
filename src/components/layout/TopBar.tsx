@@ -18,7 +18,6 @@ export const TopBar: React.FC = () => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('theme');
       if (stored === 'light' || stored === 'dark') return stored;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'light';
   });
@@ -26,6 +25,7 @@ export const TopBar: React.FC = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [selectedCityName, setSelectedCityName] = useState('Select City');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +55,49 @@ export const TopBar: React.FC = () => {
       }
     };
     fetchCities();
+  }, [profile]);
+
+  useEffect(() => {
+    if (!profile) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const { count, error } = await supabase
+          .from('notifications')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', profile.id)
+          .eq('is_read', false);
+
+        if (!error && count !== null) {
+          setUnreadCount(count);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Subscribe to postgres realtime updates for notifications table
+    const channel = supabase
+      .channel('unread-notifications-tracker')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${profile.id}`,
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profile]);
 
   const toggleTheme = () => {
@@ -152,17 +195,19 @@ export const TopBar: React.FC = () => {
               onClick={() => navigate('/notifications')}
             >
               <Bell size={20} />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '6px',
-                  right: '6px',
-                  width: '8px',
-                  height: '8px',
-                  backgroundColor: 'var(--danger)',
-                  borderRadius: '50%',
-                }}
-              />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '6px',
+                    right: '6px',
+                    width: '8px',
+                    height: '8px',
+                    backgroundColor: 'var(--danger)',
+                    borderRadius: '50%',
+                  }}
+                />
+              )}
             </button>
 
             <div

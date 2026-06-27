@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
 import { toast } from 'react-hot-toast';
 import { MagnifyingGlass, MapPin } from '@phosphor-icons/react';
+import { useAuthStore } from '../store/authStore';
 
 interface SearchIssue {
   id: string;
@@ -34,6 +35,7 @@ interface SearchUser {
 
 export const SearchPage: React.FC = () => {
   const navigate = useNavigate();
+  const { profile } = useAuthStore();
 
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'issues' | 'cities' | 'users'>('issues');
@@ -69,12 +71,17 @@ export const SearchPage: React.FC = () => {
           .limit(5);
         if (citiesData) setDefaultCities(citiesData as any[]);
 
-        // Fetch 5 recommended users (by contribution score)
-        const { data: usersData } = await supabase
+        // Fetch 5 recommended users (by contribution score) excluding self
+        let usersQuery = supabase
           .from('profiles')
           .select('id, full_name, username, role, avatar_url')
-          .order('contribution_score', { ascending: false })
-          .limit(5);
+          .order('contribution_score', { ascending: false });
+
+        if (profile?.id) {
+          usersQuery = usersQuery.neq('id', profile.id);
+        }
+
+        const { data: usersData } = await usersQuery.limit(5);
         if (usersData) setDefaultUsers(usersData as any[]);
       } catch (err) {
         console.error('Failed to load search recommendations:', err);
@@ -83,7 +90,7 @@ export const SearchPage: React.FC = () => {
       }
     };
     fetchDefaults();
-  }, []);
+  }, [profile]);
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -106,11 +113,16 @@ export const SearchPage: React.FC = () => {
           .limit(10);
         setCities(data as any[] || []);
       } else {
-        const { data } = await supabase
+        let userSearchQuery = supabase
           .from('profiles')
           .select('id, full_name, username, role, avatar_url')
-          .or(`full_name.ilike.%${query.trim()}%,username.ilike.%${query.trim()}%`)
-          .limit(10);
+          .or(`full_name.ilike.%${query.trim()}%,username.ilike.%${query.trim()}%`);
+
+        if (profile?.id) {
+          userSearchQuery = userSearchQuery.neq('id', profile.id);
+        }
+
+        const { data } = await userSearchQuery.limit(10);
         setUsers(data as any[] || []);
       }
     } catch (err) {

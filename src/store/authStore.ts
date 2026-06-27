@@ -34,12 +34,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initialized: false,
 
   setSession: async (session) => {
+    const { user: currentUser, profile: currentProfile } = get();
     if (!session) {
       set({ user: null, profile: null, loading: false, initialized: true });
       return;
     }
 
     const user = session.user;
+    
+    // If the user matches currently loaded user, skip setSession re-fetching/re-loading
+    if (currentUser?.id === user.id && currentProfile) {
+      set({ user, initialized: true, loading: false });
+      return;
+    }
+
     set({ user, loading: true });
 
     try {

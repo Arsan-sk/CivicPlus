@@ -198,6 +198,37 @@ export const CreateIssuePage: React.FC = () => {
     }
   };
 
+  const fetchAddressFromCoords = async (lat: number, lon: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+        {
+          headers: {
+            'User-Agent': 'CivicPlus-Community-App'
+          }
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.address) {
+          const road = data.address.road || '';
+          const suburb = data.address.suburb || data.address.neighbourhood || '';
+          const city = data.address.city || data.address.town || data.address.village || '';
+          const formatted = [road, suburb, city].filter(Boolean).join(', ');
+          if (formatted) {
+            setAddress(formatted);
+          } else {
+            setAddress(data.display_name);
+          }
+          toast.success('Address name resolved from GPS!');
+        }
+      }
+    } catch (err) {
+      console.error('Reverse geocoding failed:', err);
+    }
+  };
+
+
   const handleSupportExisting = async (issueId: string) => {
     try {
       const { error } = await supabase.from('supports').insert({
@@ -421,13 +452,13 @@ export const CreateIssuePage: React.FC = () => {
 
       {/* STEP 3: DETAILS AND LOCATION SELECTOR */}
       {step === 3 && (
-        <Card className="flex flex-col gap-5">
+        <Card className="flex flex-col gap-8" style={{ padding: '2rem' }}>
           {aiSuggestions && (
             <div
               style={{
                 backgroundColor: 'var(--primary-light)',
                 border: '1px solid hsla(var(--primary-hue), 85%, 50%, 0.1)',
-                padding: '1rem',
+                padding: '1.25rem',
                 borderRadius: 'var(--radius-md)',
                 display: 'flex',
                 alignItems: 'start',
@@ -479,7 +510,7 @@ export const CreateIssuePage: React.FC = () => {
 
           <div
             style={{
-              padding: '1rem',
+              padding: '1.25rem',
               backgroundColor: 'var(--bg-offset)',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--border)',
@@ -501,17 +532,43 @@ export const CreateIssuePage: React.FC = () => {
               variant="secondary"
               size="sm"
               onClick={() => {
-                // Simulate picking current geolocation
-                setLatitude(19.0760 + (Math.random() - 0.5) * 0.02);
-                setLongitude(72.8777 + (Math.random() - 0.5) * 0.02);
-                toast.success('Coordinates locked from GPS');
+                if (navigator.geolocation) {
+                  const toastId = toast.loading('Fetching device coordinates...');
+                  navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                      const lat = position.coords.latitude;
+                      const lon = position.coords.longitude;
+                      setLatitude(lat);
+                      setLongitude(lon);
+                      toast.success('Coordinates locked from GPS!', { id: toastId });
+                      await fetchAddressFromCoords(lat, lon);
+                    },
+                    async (err) => {
+                      console.warn('Browser geolocation failed, picking default coords:', err);
+                      const lat = 19.0760 + (Math.random() - 0.5) * 0.02;
+                      const lon = 72.8777 + (Math.random() - 0.5) * 0.02;
+                      setLatitude(lat);
+                      setLongitude(lon);
+                      toast.success('Locked mock coordinates from GPS!', { id: toastId });
+                      await fetchAddressFromCoords(lat, lon);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                  );
+                } else {
+                  const lat = 19.0760 + (Math.random() - 0.5) * 0.02;
+                  const lon = 72.8777 + (Math.random() - 0.5) * 0.02;
+                  setLatitude(lat);
+                  setLongitude(lon);
+                  toast.success('Coordinates mock-pinned');
+                  fetchAddressFromCoords(lat, lon);
+                }
               }}
             >
               Pin GPS Location
             </Button>
           </div>
 
-          <Button onClick={checkForDuplicates} style={{ width: '100%' }}>
+          <Button onClick={checkForDuplicates} style={{ width: '100%', marginTop: '0.5rem' }}>
             Proceed to Verification
           </Button>
         </Card>
