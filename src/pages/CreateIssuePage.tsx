@@ -14,6 +14,7 @@ import {
   MapPin,
   Sparkle,
   ArrowLeft,
+  CheckCircle,
 } from '@phosphor-icons/react';
 
 interface Category {
@@ -183,9 +184,11 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
       return;
     }
     
+    // Always advance to Step 4 to preserve linear flow order
+    setStep(4);
+
     if (!profile?.city_id) {
-      // If city is not configured for the profile, skip checks and proceed
-      setStep(5);
+      setDuplicates([]);
       return;
     }
     
@@ -198,16 +201,14 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
         .in('status', ['submitted', 'community_verification_pending', 'community_verified', 'in_progress'])
         .limit(3);
 
-      if (data && data.length > 0) {
-        setDuplicates(data);
-        setStep(4);
+      if (data) {
+        setDuplicates(data as DuplicateIssue[]);
       } else {
-        // No duplicates, proceed to routing step
-        setStep(5);
+        setDuplicates([]);
       }
     } catch (err) {
       console.error(err);
-      setStep(5);
+      setDuplicates([]);
     }
   };
 
@@ -372,11 +373,7 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
       <div className="flex align-center gap-3">
         {step > 1 ? (
           <button
-            onClick={() => setStep((prev) => {
-              if (prev === 5 && duplicates.length === 0) return 3;
-              if (prev === 4) return 3;
-              return prev - 1;
-            })}
+            onClick={() => setStep((prev) => prev - 1)}
             className="btn btn-ghost btn-sm"
             style={{ borderRadius: '50%', padding: '8px' }}
           >
@@ -621,50 +618,79 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
 
       {/* STEP 4: DUPLICATE INTERCEPTION CHECK */}
       {step === 4 && (
-        <Card className="flex flex-col gap-4">
-          <div className="flex gap-2 align-center" style={{ color: 'var(--warning)' }}>
-            <Warning size={28} weight="fill" />
-            <h3 style={{ fontSize: '1.25rem' }}>Similar Issues Found Nearby</h3>
-          </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-            To prevent duplicate spam alerts, please check if your problem is already described in one of these open tickets. If it is, supporting it raises its public priority directly!
-          </p>
+        <Card className="flex flex-col gap-6" style={{ padding: '2rem' }}>
+          {duplicates.length > 0 ? (
+            <>
+              <div className="flex gap-2 align-center" style={{ color: 'var(--warning)' }}>
+                <Warning size={28} weight="fill" />
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Similar Issues Found Nearby</h3>
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.5 }}>
+                To prevent duplicate spam alerts, please check if your problem is already described in one of these open tickets. If it is, supporting it raises its public priority directly!
+              </p>
 
-          <div className="flex flex-col gap-3 py-2">
-            {duplicates.map((dup) => (
+              <div className="flex flex-col gap-3 py-2">
+                {duplicates.map((dup) => (
+                  <div
+                    key={dup.id}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      backgroundColor: 'var(--bg-offset)',
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>
+                        {dup.title}
+                      </strong>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        Status: {dup.status.replace(/_/g, ' ')} · {dup.support_count} supporters
+                      </div>
+                    </div>
+                    <Button variant="primary" size="sm" onClick={() => handleSupportExisting(dup.id)}>
+                      Support Instead
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex gap-2 align-center" style={{ color: 'var(--success)' }}>
+                <CheckCircle size={28} weight="fill" />
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Duplicate Check Clear</h3>
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.5 }}>
+                Our duplicate search didn't detect any active tickets matching this category or location nearby. You can safely report this as a unique incident!
+              </p>
               <div
-                key={dup.id}
                 style={{
-                  padding: '1rem',
+                  padding: '1.5rem',
+                  backgroundColor: 'var(--bg-offset)',
                   borderRadius: 'var(--radius-md)',
                   border: '1px solid var(--border)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  backgroundColor: 'var(--bg-offset)',
+                  textAlign: 'center',
+                  fontSize: '0.875rem',
+                  color: 'var(--text-heading)',
+                  fontWeight: 600,
+                  marginTop: '0.5rem'
                 }}
               >
-                <div>
-                  <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>
-                    {dup.title}
-                  </strong>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                    Status: {dup.status.replace(/_/g, ' ')} · {dup.support_count} supporters
-                  </div>
-                </div>
-                <Button variant="primary" size="sm" onClick={() => handleSupportExisting(dup.id)}>
-                  Support Instead
-                </Button>
+                No similar issues found near your location.
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
           <div className="flex justify-between gap-4 mt-4">
             <Button variant="secondary" onClick={() => setStep(3)} style={{ flex: 1 }}>
               Modify Details
             </Button>
             <Button variant="primary" onClick={() => setStep(5)} style={{ flex: 1 }}>
-              My Issue is Unique
+              {duplicates.length > 0 ? 'My Issue is Unique' : 'Proceed to Routing'}
             </Button>
           </div>
         </Card>
