@@ -263,6 +263,15 @@ a:hover {
   background-color: hsl(var(--danger-hue), 84%, 48%);
 }
 
+.btn-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: hsl(var(--success-hue), 69%, 34%);
+}
+
 .btn-sm {
   padding: 0.375rem 0.75rem;
   font-size: 0.8125rem;
