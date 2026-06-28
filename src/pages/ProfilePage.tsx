@@ -115,6 +115,19 @@ export const ProfilePage: React.FC = () => {
   }, [showApplyModal]);
 
   useEffect(() => {
+    if (position === 'Prime Minister') {
+      setJurisdictionLevel('national');
+      setSelectedState('');
+      setSelectedCity('');
+    } else if (position === 'Chief Minister') {
+      setJurisdictionLevel('state');
+      setSelectedCity('');
+    } else {
+      setJurisdictionLevel('city');
+    }
+  }, [position]);
+
+  useEffect(() => {
     if (!selectedState) {
       setCitiesList([]);
       return;
@@ -356,7 +369,7 @@ export const ProfilePage: React.FC = () => {
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
                   className="input"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                   required
                 >
                   <option value="Department Officer">Department Officer</option>
@@ -373,17 +386,39 @@ export const ProfilePage: React.FC = () => {
                 <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
                   Jurisdiction Level
                 </label>
-                <select
-                  value={jurisdictionLevel}
-                  onChange={(e) => setJurisdictionLevel(e.target.value)}
-                  className="input"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
-                  required
+                <div
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--bg-offset)',
+                    color: 'var(--text-heading)',
+                    fontSize: '0.875rem',
+                    textTransform: 'capitalize',
+                    fontWeight: 600
+                  }}
                 >
-                  <option value="city">City</option>
-                  <option value="state">State</option>
-                  <option value="national">National</option>
-                </select>
+                  {jurisdictionLevel}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                  Country
+                </label>
+                <div
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--bg-offset)',
+                    color: 'var(--text-heading)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600
+                  }}
+                >
+                  India
+                </div>
               </div>
 
               {(jurisdictionLevel === 'city' || jurisdictionLevel === 'state') && (
@@ -398,7 +433,7 @@ export const ProfilePage: React.FC = () => {
                       setSelectedCity('');
                     }}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select State --</option>
@@ -418,7 +453,7 @@ export const ProfilePage: React.FC = () => {
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select City --</option>
@@ -438,7 +473,7 @@ export const ProfilePage: React.FC = () => {
                     value={selectedDept}
                     onChange={(e) => setSelectedDept(e.target.value)}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select Department --</option>

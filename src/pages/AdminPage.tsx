@@ -283,6 +283,19 @@ export const AdminPage: React.FC = () => {
   }, [selectedUserForPromo]);
 
   useEffect(() => {
+    if (promoPosition === 'Prime Minister') {
+      setPromoJurisdictionLevel('national');
+      setPromoStateId('');
+      setPromoCityId('');
+    } else if (promoPosition === 'Chief Minister') {
+      setPromoJurisdictionLevel('state');
+      setPromoCityId('');
+    } else {
+      setPromoJurisdictionLevel('city');
+    }
+  }, [promoPosition]);
+
+  useEffect(() => {
     if (!promoStateId) {
       setCitiesList([]);
       return;
@@ -946,7 +959,7 @@ export const AdminPage: React.FC = () => {
                   value={promoPosition}
                   onChange={(e) => setPromoPosition(e.target.value)}
                   className="input"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                   required
                 >
                   <option value="Department Officer">Department Officer</option>
@@ -961,19 +974,41 @@ export const AdminPage: React.FC = () => {
 
               <div>
                 <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
-                  Jurisdiction level
+                  Jurisdiction Level
                 </label>
-                <select
-                  value={promoJurisdictionLevel}
-                  onChange={(e) => setPromoJurisdictionLevel(e.target.value)}
-                  className="input"
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
-                  required
+                <div
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--bg-offset)',
+                    color: 'var(--text-heading)',
+                    fontSize: '0.875rem',
+                    textTransform: 'capitalize',
+                    fontWeight: 600
+                  }}
                 >
-                  <option value="city">City</option>
-                  <option value="state">State</option>
-                  <option value="national">National</option>
-                </select>
+                  {promoJurisdictionLevel}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                  Country
+                </label>
+                <div
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--bg-offset)',
+                    color: 'var(--text-heading)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600
+                  }}
+                >
+                  India
+                </div>
               </div>
 
               {(promoJurisdictionLevel === 'city' || promoJurisdictionLevel === 'state') && (
@@ -988,7 +1023,7 @@ export const AdminPage: React.FC = () => {
                       setPromoCityId('');
                     }}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select State --</option>
@@ -1008,7 +1043,7 @@ export const AdminPage: React.FC = () => {
                     value={promoCityId}
                     onChange={(e) => setPromoCityId(e.target.value)}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select City --</option>
@@ -1028,7 +1063,7 @@ export const AdminPage: React.FC = () => {
                     value={promoDeptId}
                     onChange={(e) => setPromoDeptId(e.target.value)}
                     className="input"
-                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--text-heading)' }}
                     required
                   >
                     <option value="">-- Select Department --</option>
