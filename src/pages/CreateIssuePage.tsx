@@ -193,7 +193,7 @@ Choose from these valid severity levels:
 - high: Major safety hazard or structural failure (e.g., large pothole on highway, burst water pipe flooding a street).
 - critical: Severe danger, immediate risk to life, or total blockage of vital roads (e.g., sewage flooding homes, major structural bridge collapse).
 
-Return this exact JSON structure:
+Return in this exact JSON structure as shown in below example:
 {
   "category_slug": "pothole",
   "severity": "high",
@@ -234,7 +234,7 @@ Return this exact JSON structure:
           contents: [{ parts }],
           generationConfig: {
             temperature: 0.1,      // low temp = consistent structured output
-            maxOutputTokens: 200,
+            maxOutputTokens: 1000,
           }
         }),
       }
