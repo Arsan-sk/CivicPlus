@@ -398,36 +398,57 @@ export const IssueDetailPage: React.FC = () => {
           <div className="flex justify-between align-center flex-wrap gap-4 mt-2">
             <div className="flex gap-2">
               <Button
-                variant={userSupported ? 'primary' : 'secondary'}
+                variant="secondary"
                 size="sm"
                 onClick={handleSupport}
                 className="flex align-center gap-1"
+                style={userSupported ? {
+                  color: 'var(--primary)',
+                  backgroundColor: 'hsla(var(--primary-hue), 85%, 50%, 0.1)',
+                  fontWeight: 600,
+                  border: '1px solid var(--primary)',
+                  borderRadius: 'var(--radius-sm)'
+                } : {}}
               >
-                <ThumbsUp size={16} />
+                <ThumbsUp size={16} weight={userSupported ? "fill" : "regular"} />
                 <span>{userSupported ? 'Supported ✔' : 'Support'} ({issue.support_count})</span>
               </Button>
 
               {issue.status === 'community_verification_pending' && (
                 <Button
-                  variant={userConfirmations.includes('existence') ? 'success' : 'primary'}
+                  variant="secondary"
                   size="sm"
                   onClick={() => handleConfirmation('existence')}
                   className="flex align-center gap-1"
+                  style={userConfirmations.includes('existence') ? {
+                    color: 'var(--success)',
+                    backgroundColor: 'hsla(var(--success-hue), 69%, 40%, 0.1)',
+                    fontWeight: 600,
+                    border: '1px solid var(--success)',
+                    borderRadius: 'var(--radius-sm)'
+                  } : {}}
                 >
-                  <CheckSquare size={16} />
-                  <span>{userConfirmations.includes('existence') ? 'Verified ✔' : 'Verify Existence'} ({issue.confirmation_count}/10)</span>
+                  <CheckSquare size={16} weight={userConfirmations.includes('existence') ? "fill" : "regular"} />
+                  <span>{userConfirmations.includes('existence') ? 'Verify It! (Existence) ✔' : 'Verify It! (Existence)'} ({issue.confirmation_count}/10)</span>
                 </Button>
               )}
 
               {issue.status === 'awaiting_community_verification' && (
                 <Button
-                  variant={userConfirmations.includes('resolution') ? 'success' : 'primary'}
+                  variant="secondary"
                   size="sm"
                   onClick={() => handleConfirmation('resolution')}
                   className="flex align-center gap-1"
+                  style={userConfirmations.includes('resolution') ? {
+                    color: 'var(--success)',
+                    backgroundColor: 'hsla(var(--success-hue), 69%, 40%, 0.1)',
+                    fontWeight: 600,
+                    border: '1px solid var(--success)',
+                    borderRadius: 'var(--radius-sm)'
+                  } : {}}
                 >
-                  <CheckSquare size={16} />
-                  <span>{userConfirmations.includes('resolution') ? 'Verified Resolution ✔' : 'Verify Resolution'} ({issue.resolution_confirmation_count}/10)</span>
+                  <CheckSquare size={16} weight={userConfirmations.includes('resolution') ? "fill" : "regular"} />
+                  <span>{userConfirmations.includes('resolution') ? 'Verify It! (Resolution) ✔' : 'Verify It! (Resolution)'} ({issue.resolution_confirmation_count}/10)</span>
                 </Button>
               )}
             </div>

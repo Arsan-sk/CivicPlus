@@ -72,6 +72,40 @@ export const HomePage: React.FC = () => {
   const [filterSeverity, setFilterSeverity] = useState('');
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
+  const [supportedIssueIds, setSupportedIssueIds] = useState<string[]>([]);
+  const [supportedDiscussionIds, setSupportedDiscussionIds] = useState<string[]>([]);
+  const [confirmedIssueIds, setConfirmedIssueIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!profile) {
+      setSupportedIssueIds([]);
+      setSupportedDiscussionIds([]);
+      setConfirmedIssueIds([]);
+      return;
+    }
+    const fetchUserInteractions = async () => {
+      const { data: supportsData } = await supabase
+        .from('supports')
+        .select('issue_id, discussion_id')
+        .eq('user_id', profile.id);
+      
+      const { data: confsData } = await supabase
+        .from('confirmations')
+        .select('issue_id')
+        .eq('user_id', profile.id)
+        .eq('confirmation_type', 'existence');
+
+      if (supportsData) {
+        setSupportedIssueIds(supportsData.filter((s: any) => s.issue_id).map((s: any) => s.issue_id as string));
+        setSupportedDiscussionIds(supportsData.filter((s: any) => s.discussion_id).map((s: any) => s.discussion_id as string));
+      }
+      if (confsData) {
+        setConfirmedIssueIds(confsData.map((c: any) => c.issue_id as string));
+      }
+    };
+    fetchUserInteractions();
+  }, [profile, issues, discussions]);
+
   useEffect(() => {
     // Fetch categories for filters
     const fetchCategories = async () => {
@@ -476,8 +510,14 @@ export const HomePage: React.FC = () => {
                       size="sm"
                       onClick={() => handleSupport(issue.id, 'issue', index)}
                       className="flex align-center gap-1"
+                      style={supportedIssueIds.includes(issue.id) ? {
+                        color: 'var(--primary)',
+                        backgroundColor: 'hsla(var(--primary-hue), 85%, 50%, 0.1)',
+                        fontWeight: 600,
+                        borderRadius: 'var(--radius-sm)'
+                      } : {}}
                     >
-                      <ThumbsUp size={18} />
+                      <ThumbsUp size={18} weight={supportedIssueIds.includes(issue.id) ? "fill" : "regular"} />
                       <span>{issue.support_count} Supports</span>
                     </Button>
                     <Button
@@ -485,21 +525,37 @@ export const HomePage: React.FC = () => {
                       size="sm"
                       onClick={() => handleConfirmExistence(issue.id, index)}
                       className="flex align-center gap-1"
+                      style={confirmedIssueIds.includes(issue.id) ? {
+                        color: 'var(--success)',
+                        backgroundColor: 'hsla(var(--success-hue), 69%, 40%, 0.1)',
+                        fontWeight: 600,
+                        borderRadius: 'var(--radius-sm)'
+                      } : {}}
                     >
-                      <CheckSquare size={18} />
-                      <span>{issue.confirmation_count} Verifications</span>
+                      <CheckSquare size={18} weight={confirmedIssueIds.includes(issue.id) ? "fill" : "regular"} />
+                      <span>{issue.confirmation_count} Verify It!</span>
                     </Button>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(`/issues/${issue.id}`)}
-                    className="flex align-center gap-1"
-                  >
-                    <Chat size={18} />
-                    <span>{issue.comment_count} Comments</span>
-                  </Button>
+                  <div className="flex align-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/issues/${issue.id}`)}
+                      className="flex align-center gap-1"
+                    >
+                      <Chat size={18} />
+                      <span>{issue.comment_count} Comments</span>
+                    </Button>
+
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => navigate(`/issues/${issue.id}`)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))
@@ -543,8 +599,14 @@ export const HomePage: React.FC = () => {
                     size="sm"
                     onClick={() => handleSupport(post.id, 'discussion', index)}
                     className="flex align-center gap-1"
+                    style={supportedDiscussionIds.includes(post.id) ? {
+                      color: 'var(--primary)',
+                      backgroundColor: 'hsla(var(--primary-hue), 85%, 50%, 0.1)',
+                      fontWeight: 600,
+                      borderRadius: 'var(--radius-sm)'
+                    } : {}}
                   >
-                    <ThumbsUp size={16} />
+                    <ThumbsUp size={16} weight={supportedDiscussionIds.includes(post.id) ? "fill" : "regular"} />
                     <span>{post.support_count} Upvotes</span>
                   </Button>
                   <Button

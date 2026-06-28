@@ -249,13 +249,23 @@ export const IssuesPage: React.FC = () => {
               </div>
 
               <div className="flex justify-between align-center border-t pt-2" style={{ borderColor: 'var(--border)' }}>
-                <Badge variant={getStatusBadgeVariant(issue.status)}>
-                  {issue.status.replace(/_/g, ' ')}
-                </Badge>
+                <div className="flex align-center gap-2">
+                  <Badge variant={getStatusBadgeVariant(issue.status)}>
+                    {issue.status.replace(/_/g, ' ')}
+                  </Badge>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/issues/${issue.id}`); }}
+                    style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                  >
+                    View Details
+                  </Button>
+                </div>
                 <div className="flex gap-2" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   <span>{issue.support_count} Upvotes</span>
                   <span>·</span>
-                  <span>{issue.confirmation_count} Verified</span>
+                  <span>{issue.confirmation_count} Verify It!</span>
                 </div>
               </div>
             </Card>
