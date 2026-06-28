@@ -89,6 +89,9 @@ export const IssueDetailPage: React.FC = () => {
   const [statusNote, setStatusNote] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
+  const [userSupported, setUserSupported] = useState(false);
+  const [userConfirmations, setUserConfirmations] = useState<string[]>([]);
+
   const fetchIssueDetails = async () => {
     try {
       // 1. Fetch main issue details
@@ -131,6 +134,27 @@ export const IssueDetailPage: React.FC = () => {
         .order('created_at', { ascending: true });
 
       if (commentsData) setComments(commentsData as any[]);
+
+      // 4. Fetch user actions status if logged in
+      if (profile) {
+        const { data: supportCheck } = await supabase
+          .from('supports')
+          .select('id')
+          .eq('issue_id', id)
+          .eq('user_id', profile.id);
+        setUserSupported(!!supportCheck && supportCheck.length > 0);
+
+        const { data: confs } = await supabase
+          .from('confirmations')
+          .select('confirmation_type')
+          .eq('issue_id', id)
+          .eq('user_id', profile.id);
+        if (confs) {
+          setUserConfirmations(confs.map((c: any) => c.confirmation_type));
+        } else {
+          setUserConfirmations([]);
+        }
+      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to load issue details.');
@@ -141,29 +165,26 @@ export const IssueDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (id) fetchIssueDetails();
-  }, [id]);
+  }, [id, profile]);
 
   const handleSupport = async () => {
     if (!profile || !issue) return;
     try {
-      const { error } = await supabase.from('supports').insert({
-        user_id: profile.id,
-        issue_id: issue.id,
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-          // Unlike
-          await supabase.from('supports').delete().match({ user_id: profile.id, issue_id: issue.id });
-          setIssue((prev) => prev ? { ...prev, support_count: Math.max(0, prev.support_count - 1) } : null);
-          toast.success('Support withdrawn.');
-        } else {
-          throw error;
-        }
+      if (userSupported) {
+        const { error } = await supabase
+          .from('supports')
+          .delete()
+          .match({ user_id: profile.id, issue_id: issue.id });
+        if (error) throw error;
+        toast.success('Support withdrawn.');
       } else {
-        setIssue((prev) => prev ? { ...prev, support_count: prev.support_count + 1 } : null);
+        const { error } = await supabase
+          .from('supports')
+          .insert({ user_id: profile.id, issue_id: issue.id });
+        if (error) throw error;
         toast.success('Supported!');
       }
+      fetchIssueDetails();
     } catch (err) {
       toast.error('Support action failed.');
     }
@@ -172,22 +193,29 @@ export const IssueDetailPage: React.FC = () => {
   const handleConfirmation = async (type: 'existence' | 'resolution') => {
     if (!profile || !issue) return;
     try {
-      const { error } = await supabase.from('confirmations').insert({
-        user_id: profile.id,
-        issue_id: issue.id,
-        confirmation_type: type,
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-          toast.error(`You already confirmed this issue's ${type}.`);
-        } else {
-          throw error;
-        }
+      if (userConfirmations.includes(type)) {
+        const { error } = await supabase
+          .from('confirmations')
+          .delete()
+          .match({
+            user_id: profile.id,
+            issue_id: issue.id,
+            confirmation_type: type,
+          });
+        if (error) throw error;
+        toast.success('Verification withdrawn.');
       } else {
-        toast.success(`Verification submitted!`);
-        fetchIssueDetails();
+        const { error } = await supabase
+          .from('confirmations')
+          .insert({
+            user_id: profile.id,
+            issue_id: issue.id,
+            confirmation_type: type,
+          });
+        if (error) throw error;
+        toast.success('Verification submitted!');
       }
+      fetchIssueDetails();
     } catch (err) {
       toast.error('Verification action failed.');
     }
@@ -310,12 +338,12 @@ export const IssueDetailPage: React.FC = () => {
       </div>
 
       {/* Main Issue Card Info */}
-      <Card className="flex flex-col gap-5">
-        <div className="flex justify-between align-center flex-wrap gap-2">
+      <Card className="flex flex-col gap-6" style={{ padding: '2.25rem' }}>
+        <div className="flex justify-between align-center flex-wrap gap-4">
           <div className="flex align-center gap-3">
-            <Avatar name={issue.profiles.full_name} src={issue.profiles.avatar_url} size={40} />
+            <Avatar name={issue.profiles.full_name} src={issue.profiles.avatar_url} size={44} />
             <div>
-              <strong style={{ color: 'var(--text-heading)' }}>{issue.profiles.full_name}</strong>
+              <strong style={{ color: 'var(--text-heading)', fontSize: '0.9375rem' }}>{issue.profiles.full_name}</strong>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 @{issue.profiles.username} · Reported {new Date(issue.created_at).toLocaleDateString()}
               </div>
@@ -336,29 +364,29 @@ export const IssueDetailPage: React.FC = () => {
           <img
             src={issue.issue_media[0].media_url}
             alt={issue.title}
-            style={{ width: '100%', maxHeight: '350px', objectFit: 'cover', borderRadius: 'var(--radius-md)' }}
+            style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: 'var(--radius-md)', margin: '0.5rem 0' }}
           />
         )}
 
-        <div className="flex flex-col gap-2">
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{issue.title}</h1>
-          <p style={{ color: 'var(--text)', whiteSpace: 'pre-wrap', fontSize: '0.9375rem' }}>{issue.description}</p>
+        <div className="flex flex-col gap-3">
+          <h1 style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--text-heading)' }}>{issue.title}</h1>
+          <p style={{ color: 'var(--text)', whiteSpace: 'pre-wrap', fontSize: '0.9375rem', lineHeight: 1.6 }}>{issue.description}</p>
         </div>
 
         {/* Location & category meta */}
-        <div className="grid grid-cols-2 gap-4 border-t pt-4 border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+        <div className="grid grid-cols-2 gap-6 border-t pt-5 border-b pb-5" style={{ borderColor: 'var(--border)' }}>
           <div className="flex align-center gap-2">
-            <MapPin size={20} color="var(--primary)" />
+            <MapPin size={22} color="var(--primary)" />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Location Address</div>
-              <strong style={{ fontSize: '0.8125rem', color: 'var(--text-heading)' }}>{issue.address}</strong>
+              <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>{issue.address}</strong>
             </div>
           </div>
           <div className="flex align-center gap-2">
-            <Buildings size={20} color="var(--primary)" />
+            <Buildings size={22} color="var(--primary)" />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Routing Department</div>
-              <strong style={{ fontSize: '0.8125rem', color: 'var(--text-heading)' }}>
+              <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>
                 {issue.departments?.name || 'General Municipal Board'}
               </strong>
             </div>
@@ -367,24 +395,39 @@ export const IssueDetailPage: React.FC = () => {
 
         {/* Actions bar for citizens */}
         {profile && (
-          <div className="flex justify-between align-center flex-wrap gap-3">
+          <div className="flex justify-between align-center flex-wrap gap-4 mt-2">
             <div className="flex gap-2">
-              <Button variant="secondary" size="sm" onClick={handleSupport} className="flex align-center gap-1">
+              <Button
+                variant={userSupported ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={handleSupport}
+                className="flex align-center gap-1"
+              >
                 <ThumbsUp size={16} />
-                <span>Support ({issue.support_count})</span>
+                <span>{userSupported ? 'Supported ✔' : 'Support'} ({issue.support_count})</span>
               </Button>
 
               {issue.status === 'community_verification_pending' && (
-                <Button variant="primary" size="sm" onClick={() => handleConfirmation('existence')} className="flex align-center gap-1">
+                <Button
+                  variant={userConfirmations.includes('existence') ? 'success' : 'primary'}
+                  size="sm"
+                  onClick={() => handleConfirmation('existence')}
+                  className="flex align-center gap-1"
+                >
                   <CheckSquare size={16} />
-                  <span>Verify Existence ({issue.confirmation_count}/10)</span>
+                  <span>{userConfirmations.includes('existence') ? 'Verified ✔' : 'Verify Existence'} ({issue.confirmation_count}/10)</span>
                 </Button>
               )}
 
               {issue.status === 'awaiting_community_verification' && (
-                <Button variant="primary" size="sm" onClick={() => handleConfirmation('resolution')} className="flex align-center gap-1">
+                <Button
+                  variant={userConfirmations.includes('resolution') ? 'success' : 'primary'}
+                  size="sm"
+                  onClick={() => handleConfirmation('resolution')}
+                  className="flex align-center gap-1"
+                >
                   <CheckSquare size={16} />
-                  <span>Verify Resolution ({issue.resolution_confirmation_count}/10)</span>
+                  <span>{userConfirmations.includes('resolution') ? 'Verified Resolution ✔' : 'Verify Resolution'} ({issue.resolution_confirmation_count}/10)</span>
                 </Button>
               )}
             </div>

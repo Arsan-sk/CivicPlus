@@ -57,7 +57,7 @@ interface IssueReport {
 }
 
 export const AdminPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'reports' | 'duplicates' | 'categories'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'users' | 'reports' | 'duplicates' | 'categories' | 'applications'>('stats');
 
   // Stats Data
   const [stats, setStats] = useState({
@@ -67,9 +67,26 @@ export const AdminPage: React.FC = () => {
     reportedSpams: 0,
   });
 
-  // User list
+  // User list & search
   const [users, setUsers] = useState<ProfileUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+
+  // Promotion detail form state
+  const [selectedUserForPromo, setSelectedUserForPromo] = useState<ProfileUser | null>(null);
+  const [promoPosition, setPromoPosition] = useState('Department Officer');
+  const [promoJurisdictionLevel, setPromoJurisdictionLevel] = useState('city');
+  const [promoStateId, setPromoStateId] = useState('');
+  const [promoCityId, setPromoCityId] = useState('');
+  const [promoDeptId, setPromoDeptId] = useState('');
+  const [statesList, setStatesList] = useState<any[]>([]);
+  const [citiesList, setCitiesList] = useState<any[]>([]);
+  const [deptsList, setDeptsList] = useState<any[]>([]);
+  const [submittingPromo, setSubmittingPromo] = useState(false);
+
+  // Authority Applications list
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingApps, setLoadingApps] = useState(false);
 
   // Spam Reports list
   const [reports, setReports] = useState<ReportDetail[]>([]);
@@ -116,13 +133,17 @@ export const AdminPage: React.FC = () => {
     if (activeTab === 'users') {
       const fetchUsers = async () => {
         setLoadingUsers(true);
-        const { data } = await supabase.from('profiles').select('id, full_name, username, role, contribution_score').order('username');
+        let query = supabase.from('profiles').select('id, full_name, username, role, contribution_score');
+        if (userSearchQuery.trim()) {
+          query = query.or(`full_name.ilike.%${userSearchQuery}%,username.ilike.%${userSearchQuery}%`);
+        }
+        const { data } = await query.order('username');
         if (data) setUsers(data as ProfileUser[]);
         setLoadingUsers(false);
       };
       fetchUsers();
     }
-  }, [activeTab]);
+  }, [activeTab, userSearchQuery]);
 
   // Load Content Reports Tab
   const loadReports = async () => {
@@ -221,14 +242,169 @@ export const AdminPage: React.FC = () => {
     }
   }, [activeTab]);
 
+  // Load Applications Tab
+  const loadApplications = async () => {
+    setLoadingApps(true);
+    try {
+      const { data, error } = await supabase
+        .from('authority_applications')
+        .select(`
+          id, position, jurisdiction_level, city_id, state_id, department_id, status, created_at, user_id,
+          profiles (full_name, username)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setApplications(data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load applications.');
+    } finally {
+      setLoadingApps(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'applications') {
+      loadApplications();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!selectedUserForPromo) return;
+    const fetchDropdowns = async () => {
+      const { data: states } = await supabase.from('states').select('id, name').order('name');
+      const { data: depts } = await supabase.from('departments').select('id, name').order('name');
+      if (states) setStatesList(states);
+      if (depts) setDeptsList(depts);
+    };
+    fetchDropdowns();
+  }, [selectedUserForPromo]);
+
+  useEffect(() => {
+    if (!promoStateId) {
+      setCitiesList([]);
+      return;
+    }
+    const fetchCities = async () => {
+      const { data: cities } = await supabase
+        .from('cities')
+        .select('id, name')
+        .eq('state_id', promoStateId)
+        .order('name');
+      if (cities) setCitiesList(cities);
+    };
+    fetchCities();
+  }, [promoStateId]);
+
+  const handleApproveApplication = async (app: any) => {
+    try {
+      // 1. Promote profile role to authority
+      const { error: roleError } = await supabase
+        .from('profiles')
+        .update({ role: 'authority' })
+        .eq('id', app.user_id);
+      if (roleError) throw roleError;
+
+      // 2. Insert into authorities table
+      const { error: authError } = await supabase
+        .from('authorities')
+        .insert({
+          profile_id: app.user_id,
+          position: app.position,
+          jurisdiction_level: app.jurisdiction_level,
+          city_id: app.city_id,
+          state_id: app.state_id,
+          department_id: app.department_id,
+          is_verified: true,
+          verified_at: new Date().toISOString()
+        });
+      if (authError) throw authError;
+
+      // 3. Mark application status approved
+      const { error: appError } = await supabase
+        .from('authority_applications')
+        .update({ status: 'approved' })
+        .eq('id', app.id);
+      if (appError) throw appError;
+
+      toast.success('Authority application approved successfully!');
+      loadApplications();
+    } catch (err: any) {
+      toast.error(`Approval failed: ${err.message}`);
+    }
+  };
+
+  const handleRejectApplication = async (appId: string) => {
+    try {
+      const { error } = await supabase
+        .from('authority_applications')
+        .update({ status: 'rejected' })
+        .eq('id', appId);
+      if (error) throw error;
+      toast.success('Application rejected.');
+      loadApplications();
+    } catch (err: any) {
+      toast.error(`Operation failed: ${err.message}`);
+    }
+  };
+
+  const handleDirectPromotionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUserForPromo) return;
+
+    setSubmittingPromo(true);
+    try {
+      const userId = selectedUserForPromo.id;
+
+      // 1. Update user profile role
+      const { error: roleError } = await supabase
+        .from('profiles')
+        .update({ role: 'authority' })
+        .eq('id', userId);
+      if (roleError) throw roleError;
+
+      // 2. Insert authority record
+      const { error: authError } = await supabase
+        .from('authorities')
+        .insert({
+          profile_id: userId,
+          position: promoPosition,
+          jurisdiction_level: promoJurisdictionLevel,
+          city_id: promoJurisdictionLevel === 'city' && promoCityId ? promoCityId : null,
+          state_id: (promoJurisdictionLevel === 'city' || promoJurisdictionLevel === 'state') && promoStateId ? promoStateId : null,
+          department_id: promoPosition === 'Department Officer' && promoDeptId ? promoDeptId : null,
+          is_verified: true,
+          verified_at: new Date().toISOString()
+        });
+      if (authError) throw authError;
+
+      toast.success(`${selectedUserForPromo.full_name} promoted to Authority successfully!`);
+      setSelectedUserForPromo(null);
+      
+      // Reload user list
+      const { data } = await supabase.from('profiles').select('id, full_name, username, role, contribution_score').order('username');
+      if (data) setUsers(data as ProfileUser[]);
+    } catch (err: any) {
+      toast.error(`Promotion failed: ${err.message}`);
+    } finally {
+      setSubmittingPromo(false);
+    }
+  };
+
   // User Actions
   const handleUpdateRole = async (userId: string, newRole: string) => {
-    const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
-    if (error) {
-      toast.error(`Update failed: ${error.message}`);
-    } else {
-      toast.success(`Role updated successfully to ${newRole}`);
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
+    if (newRole === 'citizen') {
+      // Demoting from authority: update profiles, and delete authorities row
+      const { error: roleError } = await supabase.from('profiles').update({ role: 'citizen' }).eq('id', userId);
+      if (roleError) {
+        toast.error(`Demotion failed: ${roleError.message}`);
+      } else {
+        await supabase.from('authorities').delete().eq('profile_id', userId);
+        toast.success('Demoted to Citizen.');
+        setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: 'citizen' } : u)));
+      }
     }
   };
 
@@ -370,6 +546,12 @@ export const AdminPage: React.FC = () => {
           <Users size={16} style={{ marginRight: '6px' }} /> User Control
         </button>
         <button
+          className={`btn btn-sm ${activeTab === 'applications' ? 'btn-primary' : 'btn-ghost'}`}
+          onClick={() => setActiveTab('applications')}
+        >
+          <Users size={16} style={{ marginRight: '6px' }} weight="fill" /> Authority Requests
+        </button>
+        <button
           className={`btn btn-sm ${activeTab === 'reports' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('reports')}
         >
@@ -423,7 +605,16 @@ export const AdminPage: React.FC = () => {
       {/* TAB CONTENT: USERS */}
       {activeTab === 'users' && (
         <Card style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1rem' }}>User Directory & Verification</h3>
+          <div className="flex justify-between align-center flex-wrap gap-4 mb-4">
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700 }}>User Directory & Verification</h3>
+            <Input
+              type="text"
+              placeholder="Search user by name or username..."
+              value={userSearchQuery}
+              onChange={(e) => setUserSearchQuery(e.target.value)}
+              style={{ maxWidth: '300px' }}
+            />
+          </div>
           {loadingUsers ? (
             <p>Loading users...</p>
           ) : (
@@ -452,7 +643,7 @@ export const AdminPage: React.FC = () => {
                       <td style={{ padding: '0.75rem 0.5rem' }}>{u.contribution_score}</td>
                       <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }} className="flex gap-2 justify-end">
                         {u.role === 'citizen' && (
-                          <Button size="sm" variant="secondary" onClick={() => handleUpdateRole(u.id, 'authority')}>
+                          <Button size="sm" variant="secondary" onClick={() => setSelectedUserForPromo(u)}>
                             Promote to Authority
                           </Button>
                         )}
@@ -661,6 +852,201 @@ export const AdminPage: React.FC = () => {
                 required
               />
               <Button type="submit">Add Category</Button>
+            </form>
+          </Card>
+        </div>
+      )}
+
+      {/* TAB CONTENT: APPLICATIONS */}
+      {activeTab === 'applications' && (
+        <Card style={{ padding: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1rem' }}>Pending Authority Verification Applications</h3>
+          {loadingApps ? (
+            <p>Loading applications...</p>
+          ) : applications.length === 0 ? (
+            <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>No pending authority requests.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                    <th style={{ padding: '0.75rem 0.5rem' }}>User</th>
+                    <th style={{ padding: '0.75rem 0.5rem' }}>Requested Position</th>
+                    <th style={{ padding: '0.75rem 0.5rem' }}>Jurisdiction</th>
+                    <th style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applications.map((app) => (
+                    <tr key={app.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <strong style={{ color: 'var(--text-heading)' }}>{app.profiles?.full_name || 'Anonymous'}</strong>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{app.profiles?.username}</div>
+                      </td>
+                      <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <Badge variant="primary">{app.position}</Badge>
+                      </td>
+                      <td style={{ padding: '0.75rem 0.5rem' }}>
+                        <div style={{ textTransform: 'capitalize' }}>
+                          <strong>{app.jurisdiction_level}</strong>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {app.city_id && 'City level mapping'} 
+                          {app.state_id && 'State level mapping'}
+                          {app.department_id && ' · Assigned Department'}
+                        </div>
+                      </td>
+                      <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }} className="flex gap-2 justify-end">
+                        <Button size="sm" variant="primary" onClick={() => handleApproveApplication(app)}>
+                          Approve & Promote
+                        </Button>
+                        <Button size="sm" variant="danger" onClick={() => handleRejectApplication(app.id)}>
+                          Reject
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* DIRECT PROMOTION DIALOG MODAL */}
+      {selectedUserForPromo && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 999,
+            padding: '1rem'
+          }}
+        >
+          <Card style={{ width: '100%', maxWidth: '500px', padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-heading)' }}>
+              Promote Citizen to Authority
+            </h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', marginBottom: '1.25rem' }}>
+              Promoting <strong>{selectedUserForPromo.full_name}</strong> (@{selectedUserForPromo.username}) to verified authority.
+            </p>
+            <form onSubmit={handleDirectPromotionSubmit} className="flex flex-col gap-4">
+              <div>
+                <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                  Position Title
+                </label>
+                <select
+                  value={promoPosition}
+                  onChange={(e) => setPromoPosition(e.target.value)}
+                  className="input"
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                  required
+                >
+                  <option value="Department Officer">Department Officer</option>
+                  <option value="Ward Officer">Ward Officer</option>
+                  <option value="Municipal Commissioner">Municipal Commissioner</option>
+                  <option value="Mayor">Mayor</option>
+                  <option value="MLA">MLA</option>
+                  <option value="Chief Minister">Chief Minister</option>
+                  <option value="Prime Minister">Prime Minister</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                  Jurisdiction level
+                </label>
+                <select
+                  value={promoJurisdictionLevel}
+                  onChange={(e) => setPromoJurisdictionLevel(e.target.value)}
+                  className="input"
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                  required
+                >
+                  <option value="city">City</option>
+                  <option value="state">State</option>
+                  <option value="national">National</option>
+                </select>
+              </div>
+
+              {(promoJurisdictionLevel === 'city' || promoJurisdictionLevel === 'state') && (
+                <div>
+                  <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                    Select State
+                  </label>
+                  <select
+                    value={promoStateId}
+                    onChange={(e) => {
+                      setPromoStateId(e.target.value);
+                      setPromoCityId('');
+                    }}
+                    className="input"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    required
+                  >
+                    <option value="">-- Select State --</option>
+                    {statesList.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {promoJurisdictionLevel === 'city' && promoStateId && (
+                <div>
+                  <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                    Select City
+                  </label>
+                  <select
+                    value={promoCityId}
+                    onChange={(e) => setPromoCityId(e.target.value)}
+                    className="input"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    required
+                  >
+                    <option value="">-- Select City --</option>
+                    {citiesList.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {promoPosition === 'Department Officer' && (
+                <div>
+                  <label style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>
+                    Assigned Government Department
+                  </label>
+                  <select
+                    value={promoDeptId}
+                    onChange={(e) => setPromoDeptId(e.target.value)}
+                    className="input"
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', backgroundColor: 'var(--bg)' }}
+                    required
+                  >
+                    <option value="">-- Select Department --</option>
+                    {deptsList.map((d) => (
+                      <option key={d.id} value={d.id}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end mt-4">
+                <Button type="button" variant="secondary" onClick={() => setSelectedUserForPromo(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" loading={submittingPromo}>
+                  Confirm Promotion
+                </Button>
+              </div>
             </form>
           </Card>
         </div>

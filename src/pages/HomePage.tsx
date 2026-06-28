@@ -157,50 +157,36 @@ export const HomePage: React.FC = () => {
     }
 
     try {
-      const payload: any = { user_id: profile.id };
-      if (type === 'issue') payload.issue_id = id;
-      else payload.discussion_id = id;
+      // Check if already supported
+      const matchFilter = type === 'issue'
+        ? { user_id: profile.id, issue_id: id }
+        : { user_id: profile.id, discussion_id: id };
 
-      const { error } = await supabase.from('supports').insert(payload);
+      const { data: existing } = await supabase
+        .from('supports')
+        .select('id')
+        .match(matchFilter);
 
-      if (error) {
-        if (error.code === '23505') {
-          // User already supported, so toggle / remove support
-          if (type === 'issue') {
-            await supabase.from('supports').delete().match({ user_id: profile.id, issue_id: id });
-            setIssues((prev) => {
-              const copy = [...prev];
-              copy[index].support_count = Math.max(0, copy[index].support_count - 1);
-              return copy;
-            });
-          } else {
-            await supabase.from('supports').delete().match({ user_id: profile.id, discussion_id: id });
-            setDiscussions((prev) => {
-              const copy = [...prev];
-              copy[index].support_count = Math.max(0, copy[index].support_count - 1);
-              return copy;
-            });
-          }
-          toast.success('Support removed.');
-        } else {
-          throw error;
-        }
+      if (existing && existing.length > 0) {
+        // Remove support
+        await supabase.from('supports').delete().match(matchFilter);
+        toast.success('Support removed.');
       } else {
-        // Success insert
-        if (type === 'issue') {
-          setIssues((prev) => {
-            const copy = [...prev];
-            copy[index].support_count += 1;
-            return copy;
-          });
-        } else {
-          setDiscussions((prev) => {
-            const copy = [...prev];
-            copy[index].support_count += 1;
-            return copy;
-          });
-        }
+        // Add support
+        const payload: any = { user_id: profile.id };
+        if (type === 'issue') payload.issue_id = id;
+        else payload.discussion_id = id;
+        await supabase.from('supports').insert(payload);
         toast.success('You supported this!');
+      }
+
+      // Fetch authoritative count from DB (set by trigger)
+      if (type === 'issue') {
+        const { data } = await supabase.from('issue_reports').select('support_count').eq('id', id).single();
+        if (data) setIssues((prev) => { const c = [...prev]; c[index].support_count = data.support_count; return c; });
+      } else {
+        const { data } = await supabase.from('discussions').select('support_count').eq('id', id).single();
+        if (data) setDiscussions((prev) => { const c = [...prev]; c[index].support_count = data.support_count; return c; });
       }
     } catch (err) {
       console.error(err);
@@ -216,26 +202,30 @@ export const HomePage: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase.from('confirmations').insert({
-        user_id: profile.id,
-        issue_id: issueId,
-        confirmation_type: 'existence',
-      });
+      const { data: existing } = await supabase
+        .from('confirmations')
+        .select('id')
+        .match({ user_id: profile.id, issue_id: issueId, confirmation_type: 'existence' });
 
-      if (error) {
-        if (error.code === '23505') {
-          toast.error('You already verified the existence of this issue.');
-        } else {
-          throw error;
-        }
+      if (existing && existing.length > 0) {
+        // Withdraw verification
+        await supabase.from('confirmations').delete().match({
+          user_id: profile.id, issue_id: issueId, confirmation_type: 'existence'
+        });
+        toast.success('Verification withdrawn.');
       } else {
-        setIssues((prev) => {
-          const copy = [...prev];
-          copy[index].confirmation_count += 1;
-          return copy;
+        // Add verification
+        await supabase.from('confirmations').insert({
+          user_id: profile.id,
+          issue_id: issueId,
+          confirmation_type: 'existence',
         });
         toast.success('Issue existence confirmed!');
       }
+
+      // Fetch authoritative count from DB (set by trigger)
+      const { data } = await supabase.from('issue_reports').select('confirmation_count').eq('id', issueId).single();
+      if (data) setIssues((prev) => { const c = [...prev]; c[index].confirmation_count = data.confirmation_count; return c; });
     } catch (err) {
       console.error(err);
       toast.error('Action failed.');
