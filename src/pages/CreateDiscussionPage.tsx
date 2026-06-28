@@ -135,6 +135,36 @@ export const CreateDiscussionPage: React.FC<CreateDiscussionPageProps> = ({ onBa
             />
           </div>
 
+          <div style={{ marginBottom: '0.25rem' }}>
+            <label className="form-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Trending Hot Topics (Click to add hashtag)</label>
+            <div className="flex flex-wrap gap-2">
+              {['#NEETPaperLeak', '#EthanolBlending', '#WaterConservation', '#SmartCity', '#RoadSafety', '#TeacherRecruitment'].map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => {
+                    if (!content.includes(topic)) {
+                      setContent((prev) => (prev ? prev + ' ' + topic : topic));
+                    }
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    backgroundColor: 'var(--bg-offset)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  }}
+                  className="card-interactive"
+                >
+                  {topic}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="form-group">
             <label className="form-label">What would you like to discuss?</label>
             <textarea

@@ -19,18 +19,19 @@ DELETE FROM public.reshares WHERE user_id IN (
   SELECT id FROM public.profiles WHERE id::text LIKE 'df000000-%' OR id::text LIKE 'f0000000-%'
 );
 DELETE FROM public.issue_timeline WHERE issue_id IN (
-  SELECT id FROM public.issue_reports WHERE id::text LIKE 'i0000000-%'
+  SELECT id FROM public.issue_reports WHERE id::text LIKE '15500000-%'
 );
 DELETE FROM public.issue_updates WHERE author_id IN (
   SELECT id FROM public.profiles WHERE id::text LIKE 'df000000-%' OR id::text LIKE 'f0000000-%'
 );
-DELETE FROM public.issue_reports WHERE id::text LIKE 'i0000000-%';
-DELETE FROM public.discussions WHERE id::text LIKE 'dis00000-%';
+DELETE FROM public.issue_reports WHERE id::text LIKE '15500000-%';
+DELETE FROM public.discussions WHERE id::text LIKE 'd1500000-%';
 DELETE FROM public.authorities WHERE id::text LIKE 'da000000-%';
 DELETE FROM public.profiles WHERE id::text LIKE 'df000000-%' OR id::text LIKE 'f0000000-%';
 DELETE FROM auth.users WHERE id::text LIKE 'df000000-%' OR id::text LIKE 'f0000000-%';
 
 -- 2. SEED CHIEF MINISTERS (auth.users)
+-- All accounts set with password123
 INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, role, aud) VALUES
 ('df000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'fadnavis@maharashtra.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Devendra Fadnavis", "username": "fadnavis_devendra"}', false, 'authenticated', 'authenticated'),
 ('df000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'rekha@delhi.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Rekha Gupta", "username": "gupta_rekha"}', false, 'authenticated', 'authenticated'),
@@ -389,162 +390,162 @@ WHERE id = 'f0000000-0000-0000-0005-000000000006';
 -- 5. SEED 15 ISSUES
 -- Mumbai (5 issues)
 INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, assigned_department_id, assigned_authority_id) VALUES
-('i0000000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0001-000000000001', 'Potholes during monsoon on Western Express Highway', 'Large craters formed near the Metro station, causing heavy traffic bottlenecks and multiple minor accidents.', 'e0000000-0000-0000-0000-000000000001', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000001', 19.1234, 72.8567, 'Western Express Highway, Andheri East, Mumbai', 'Ward K-East', 'd0000000-0000-0000-0001-000000000001', 'da000000-0000-0000-0000-000000000001'),
-('i0000000-0000-0000-0000-000000000002', 'f0000000-0000-0000-0001-000000000002', 'Construction Dust at Real Estate Site in Lower Parel', 'A major commercial highrise project is violating green net construction rules, releasing massive dust into the residential area nearby.', 'e0000000-0000-0000-0000-000000000010', 'medium', 'submitted', 'c0000000-0000-0000-0000-000000000001', 18.9950, 72.8250, 'Senapati Bapat Marg, Lower Parel, Mumbai', 'Ward G-South', 'd0000000-0000-0000-0001-000000000004', NULL),
-('i0000000-0000-0000-0000-000000000003', 'f0000000-0000-0000-0001-000000000003', 'Broken Footpath near Dadar Station', 'The paving stones of the pedestrian sidewalk are broken and caving in, making it extremely unsafe for senior citizens.', 'e0000000-0000-0000-0000-000000000005', 'low', 'resolved_by_authority', 'c0000000-0000-0000-0000-000000000001', 19.0178, 72.8478, 'Station Road, Dadar West, Mumbai', 'Ward G-North', 'd0000000-0000-0000-0001-000000000001', 'da000000-0000-0000-0000-000000000001'),
-('i0000000-0000-0000-0000-000000000004', 'f0000000-0000-0000-0001-000000000004', 'Bridge maintenance issues at Gokhale Bridge', 'Major cracks visible on the side columns of the bridge. Heavy structural inspection needed immediately before monsoon.', 'e0000000-0000-0000-0000-000000000005', 'critical', 'seen_by_authority', 'c0000000-0000-0000-0000-000000000001', 19.1190, 72.8465, 'Gokhale Bridge, Andheri, Mumbai', 'Ward K-East', 'd0000000-0000-0000-0001-000000000001', NULL),
-('i0000000-0000-0000-0000-000000000005', 'f0000000-0000-0000-0001-000000000005', 'Garbage Accumulation on Versova Beach', 'Plastic and medical waste accumulated on the shoreline, posing severe threat to marine life and local visitors.', 'e0000000-0000-0000-0000-000000000002', 'medium', 'community_verification_pending', 'c0000000-0000-0000-0000-000000000001', 19.1350, 72.7980, 'Versova Beach, Mumbai', 'Ward K-West', 'd0000000-0000-0000-0001-000000000004', NULL);
+('15500000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0001-000000000001', 'Potholes during monsoon on Western Express Highway', 'Large craters formed near the Metro station, causing heavy traffic bottlenecks and multiple minor accidents.', 'e0000000-0000-0000-0000-000000000001', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000001', 19.1234, 72.8567, 'Western Express Highway, Andheri East, Mumbai', 'Ward K-East', 'd0000000-0000-0000-0001-000000000001', 'da000000-0000-0000-0000-000000000001'),
+('15500000-0000-0000-0000-000000000002', 'f0000000-0000-0000-0001-000000000002', 'Construction Dust at Real Estate Site in Lower Parel', 'A major commercial highrise project is violating green net construction rules, releasing massive dust into the residential area nearby.', 'e0000000-0000-0000-0000-000000000010', 'medium', 'submitted', 'c0000000-0000-0000-0000-000000000001', 18.9950, 72.8250, 'Senapati Bapat Marg, Lower Parel, Mumbai', 'Ward G-South', 'd0000000-0000-0000-0001-000000000004', NULL),
+('15500000-0000-0000-0000-000000000003', 'f0000000-0000-0000-0001-000000000003', 'Broken Footpath near Dadar Station', 'The paving stones of the pedestrian sidewalk are broken and caving in, making it extremely unsafe for senior citizens.', 'e0000000-0000-0000-0000-000000000005', 'low', 'resolved_by_authority', 'c0000000-0000-0000-0000-000000000001', 19.0178, 72.8478, 'Station Road, Dadar West, Mumbai', 'Ward G-North', 'd0000000-0000-0000-0001-000000000001', 'da000000-0000-0000-0000-000000000001'),
+('15500000-0000-0000-0000-000000000004', 'f0000000-0000-0000-0001-000000000004', 'Bridge maintenance issues at Gokhale Bridge', 'Major cracks visible on the side columns of the bridge. Heavy structural inspection needed immediately before monsoon.', 'e0000000-0000-0000-0000-000000000005', 'critical', 'seen_by_authority', 'c0000000-0000-0000-0000-000000000001', 19.1190, 72.8465, 'Gokhale Bridge, Andheri, Mumbai', 'Ward K-East', 'd0000000-0000-0000-0001-000000000001', NULL),
+('15500000-0000-0000-0000-000000000005', 'f0000000-0000-0000-0001-000000000005', 'Garbage Accumulation on Versova Beach', 'Plastic and medical waste accumulated on the shoreline, posing severe threat to marine life and local visitors.', 'e0000000-0000-0000-0000-000000000002', 'medium', 'community_verification_pending', 'c0000000-0000-0000-0000-000000000001', 19.1350, 72.7980, 'Versova Beach, Mumbai', 'Ward K-West', 'd0000000-0000-0000-0001-000000000004', NULL);
 
 -- Delhi (3 issues)
 INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, assigned_department_id, assigned_authority_id) VALUES
-('i0000000-0000-0000-0000-000000000006', 'f0000000-0000-0000-0002-000000000001', 'Severe Air Pollution due to Waste Burning in Okhla', 'Regular open burning of industrial plastic and rubber waste during night hours, choking nearby residential colonies.', 'e0000000-0000-0000-0000-000000000010', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000002', 28.5355, 77.2874, 'Okhla Industrial Area Phase III, New Delhi', 'Ward 102S', 'd0000000-0000-0000-0002-000000000004', 'da000000-0000-0000-0000-000000000002'),
-('i0000000-0000-0000-0000-000000000007', 'f0000000-0000-0000-0002-000000000002', 'Overflowing Garbage Dump near Connaught Place', 'Public trash bins are overflowing for days. The stinking smell has spread across the footpath, blocking pedestrians.', 'e0000000-0000-0000-0000-000000000002', 'medium', 'community_verified', 'c0000000-0000-0000-0000-000000000002', 28.6304, 77.2177, 'Outer Circle, Connaught Place, New Delhi', 'Ward 88N', 'd0000000-0000-0000-0002-000000000004', NULL),
-('i0000000-0000-0000-0000-000000000008', 'f0000000-0000-0000-0002-000000000003', 'Waterlogging near ITO intersection', 'Flooding of roads even after minor rainfall due to blocked drainage inlets, causing massive traffic delays.', 'e0000000-0000-0000-0000-000000000006', 'high', 'awaiting_community_verification', 'c0000000-0000-0000-0000-000000000002', 28.6272, 77.2438, 'ITO Junction, New Delhi', 'Ward 95E', 'd0000000-0000-0000-0002-000000000005', NULL);
+('15500000-0000-0000-0000-000000000006', 'f0000000-0000-0000-0002-000000000001', 'Severe Air Pollution due to Waste Burning in Okhla', 'Regular open burning of industrial plastic and rubber waste during night hours, choking nearby residential colonies.', 'e0000000-0000-0000-0000-000000000010', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000002', 28.5355, 77.2874, 'Okhla Industrial Area Phase III, New Delhi', 'Ward 102S', 'd0000000-0000-0000-0002-000000000004', 'da000000-0000-0000-0000-000000000002'),
+('15500000-0000-0000-0000-000000000007', 'f0000000-0000-0000-0002-000000000002', 'Overflowing Garbage Dump near Connaught Place', 'Public trash bins are overflowing for days. The stinking smell has spread across the footpath, blocking pedestrians.', 'e0000000-0000-0000-0000-000000000002', 'medium', 'community_verified', 'c0000000-0000-0000-0000-000000000002', 28.6304, 77.2177, 'Outer Circle, Connaught Place, New Delhi', 'Ward 88N', 'd0000000-0000-0000-0002-000000000004', NULL),
+('15500000-0000-0000-0000-000000000008', 'f0000000-0000-0000-0002-000000000003', 'Waterlogging near ITO intersection', 'Flooding of roads even after minor rainfall due to blocked drainage inlets, causing massive traffic delays.', 'e0000000-0000-0000-0000-000000000006', 'high', 'awaiting_community_verification', 'c0000000-0000-0000-0000-000000000002', 28.6272, 77.2438, 'ITO Junction, New Delhi', 'Ward 95E', 'd0000000-0000-0000-0002-000000000005', NULL);
 
 -- Bengaluru (2 issues)
 INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, assigned_department_id, assigned_authority_id) VALUES
-('i0000000-0000-0000-0000-000000000009', 'f0000000-0000-0000-0003-000000000001', 'Extreme Traffic Congestion at Silk Board Junction', 'Due to construction work and faulty light timers, traffic is stuck for hours during peak morning and evening times.', 'e0000000-0000-0000-0000-000000000008', 'high', 'in_progress', 'c0000000-0000-0000-0000-000000000003', 12.9172, 77.6228, 'Central Silk Board Junction, Hosur Road, Bengaluru', 'Ward 191', 'd0000000-0000-0000-0003-000000000001', 'da000000-0000-0000-0000-000000000004'),
-('i0000000-0000-0000-0000-000000000010', 'f0000000-0000-0000-0003-000000000002', 'Lake Pollution & Toxic Foam at Bellandur Lake', 'Untreated chemical waste and sewage being discharged directly into the lake, creating massive clouds of white toxic foam.', 'e0000000-0000-0000-0000-000000000010', 'critical', 'community_verified', 'c0000000-0000-0000-0000-000000000003', 12.9304, 77.6784, 'Bellandur Lake Bed, Bengaluru', 'Ward 150', 'd0000000-0000-0000-0003-000000000005', NULL);
+('15500000-0000-0000-0000-000000000009', 'f0000000-0000-0000-0003-000000000001', 'Extreme Traffic Congestion at Silk Board Junction', 'Due to construction work and faulty light timers, traffic is stuck for hours during peak morning and evening times.', 'e0000000-0000-0000-0000-000000000008', 'high', 'in_progress', 'c0000000-0000-0000-0000-000000000003', 12.9172, 77.6228, 'Central Silk Board Junction, Hosur Road, Bengaluru', 'Ward 191', 'd0000000-0000-0000-0003-000000000001', 'da000000-0000-0000-0000-000000000004'),
+('15500000-0000-0000-0000-000000000010', 'f0000000-0000-0000-0003-000000000002', 'Lake Pollution & Toxic Foam at Bellandur Lake', 'Untreated chemical waste and sewage being discharged directly into the lake, creating massive clouds of white toxic foam.', 'e0000000-0000-0000-0000-000000000010', 'critical', 'community_verified', 'c0000000-0000-0000-0000-000000000003', 12.9304, 77.6784, 'Bellandur Lake Bed, Bengaluru', 'Ward 150', 'd0000000-0000-0000-0003-000000000005', NULL);
 
 -- Chennai (3 issues)
 INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, assigned_department_id, assigned_authority_id) VALUES
-('i0000000-0000-0000-0000-000000000011', 'f0000000-0000-0000-0004-000000000001', 'Waterlogging and Flooding in Velachery', 'Poor storm water drain infrastructure has caused severe flooding and water log in low-lying residential sectors.', 'e0000000-0000-0000-0000-000000000006', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000004', 12.9780, 80.2180, 'Velachery Main Road, Chennai', 'Ward 177', 'd0000000-0000-0000-0004-000000000005', 'da000000-0000-0000-0000-000000000003'),
-('i0000000-0000-0000-0000-000000000012', 'f0000000-0000-0000-0004-000000000002', 'Garbage Dump Accumulation in Pallikaranai Marshland', 'Unmanaged municipal waste dump expanding into the protected eco-sensitive marshland habitat.', 'e0000000-0000-0000-0000-000000000002', 'critical', 'community_verified', 'c0000000-0000-0000-0000-000000000004', 12.9460, 80.2190, 'Pallikaranai Dumping Ground, Chennai', 'Ward 180', 'd0000000-0000-0000-0004-000000000004', NULL),
-('i0000000-0000-0000-0000-000000000013', 'f0000000-0000-0000-0004-000000000003', 'Severe Road Damage and Potholes in T. Nagar', 'Top surface of the asphalt road completely eroded, leaving large gravel particles and deep potholes exposed.', 'e0000000-0000-0000-0000-000000000001', 'medium', 'submitted', 'c0000000-0000-0000-0000-000000000004', 13.0400, 80.2330, 'Usman Road, T. Nagar, Chennai', 'Ward 113', 'd0000000-0000-0000-0004-000000000001', NULL);
+('15500000-0000-0000-0000-000000000011', 'f0000000-0000-0000-0004-000000000001', 'Waterlogging and Flooding in Velachery', 'Poor storm water drain infrastructure has caused severe flooding and water log in low-lying residential sectors.', 'e0000000-0000-0000-0000-000000000006', 'critical', 'in_progress', 'c0000000-0000-0000-0000-000000000004', 12.9780, 80.2180, 'Velachery Main Road, Chennai', 'Ward 177', 'd0000000-0000-0000-0004-000000000005', 'da000000-0000-0000-0000-000000000003'),
+('15500000-0000-0000-0000-000000000012', 'f0000000-0000-0000-0004-000000000002', 'Garbage Dump Accumulation in Pallikaranai Marshland', 'Unmanaged municipal waste dump expanding into the protected eco-sensitive marshland habitat.', 'e0000000-0000-0000-0000-000000000002', 'critical', 'community_verified', 'c0000000-0000-0000-0000-000000000004', 12.9460, 80.2190, 'Pallikaranai Dumping Ground, Chennai', 'Ward 180', 'd0000000-0000-0000-0004-000000000004', NULL),
+('15500000-0000-0000-0000-000000000013', 'f0000000-0000-0000-0004-000000000003', 'Severe Road Damage and Potholes in T. Nagar', 'Top surface of the asphalt road completely eroded, leaving large gravel particles and deep potholes exposed.', 'e0000000-0000-0000-0000-000000000001', 'medium', 'submitted', 'c0000000-0000-0000-0000-000000000004', 13.0400, 80.2330, 'Usman Road, T. Nagar, Chennai', 'Ward 113', 'd0000000-0000-0000-0004-000000000001', NULL);
 
 -- Hyderabad (2 issues)
 INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, assigned_department_id, assigned_authority_id) VALUES
-('i0000000-0000-0000-0000-000000000014', 'f0000000-0000-0000-0005-000000000001', 'Sewage Overflow and Drainage Block in Ameerpet', 'Overflowing sewer manholes flooding the main shopping lanes with dirty water, causing severe stink.', 'e0000000-0000-0000-0000-000000000006', 'high', 'in_progress', 'c0000000-0000-0000-0000-000000000005', 17.4374, 78.4482, 'Ameerpet Cross Roads, Hyderabad', 'Ward 92', 'd0000000-0000-0000-0005-000000000005', 'da000000-0000-0000-0000-000000000005'),
-('i0000000-0000-0000-0000-000000000015', 'f0000000-0000-0000-0005-000000000002', 'Open Manhole Hazard near Gachibowli IT Corridor', 'Manhole cover missing on the service road. Extremely dangerous for two-wheelers navigating during dark hours.', 'e0000000-0000-0000-0000-000000000009', 'critical', 'closed', 'c0000000-0000-0000-0000-000000000005', 17.4401, 78.3489, 'Hitec City Road, Gachibowli, Hyderabad', 'Ward 104', 'd0000000-0000-0000-0005-000000000005', NULL);
+('15500000-0000-0000-0000-000000000014', 'f0000000-0000-0000-0005-000000000001', 'Sewage Overflow and Drainage Block in Ameerpet', 'Overflowing sewer manholes flooding the main shopping lanes with dirty water, causing severe stink.', 'e0000000-0000-0000-0000-000000000006', 'high', 'in_progress', 'c0000000-0000-0000-0000-000000000005', 17.4374, 78.4482, 'Ameerpet Cross Roads, Hyderabad', 'Ward 92', 'd0000000-0000-0000-0005-000000000005', 'da000000-0000-0000-0000-000000000005'),
+('15500000-0000-0000-0000-000000000015', 'f0000000-0000-0000-0005-000000000002', 'Open Manhole Hazard near Gachibowli IT Corridor', 'Manhole cover missing on the service road. Extremely dangerous for two-wheelers navigating during dark hours.', 'e0000000-0000-0000-0000-000000000009', 'critical', 'closed', 'c0000000-0000-0000-0000-000000000005', 17.4401, 78.3489, 'Hitec City Road, Gachibowli, Hyderabad', 'Ward 104', 'd0000000-0000-0000-0005-000000000005', NULL);
 
 -- Override the default AFTER INSERT trigger statuses for seeded issue_reports so they reflect their correct statuses
-UPDATE public.issue_reports SET status = 'in_progress' WHERE id = 'i0000000-0000-0000-0000-000000000001';
-UPDATE public.issue_reports SET status = 'submitted' WHERE id = 'i0000000-0000-0000-0000-000000000002';
-UPDATE public.issue_reports SET status = 'resolved_by_authority' WHERE id = 'i0000000-0000-0000-0000-000000000003';
-UPDATE public.issue_reports SET status = 'seen_by_authority' WHERE id = 'i0000000-0000-0000-0000-000000000004';
-UPDATE public.issue_reports SET status = 'community_verification_pending' WHERE id = 'i0000000-0000-0000-0000-000000000005';
-UPDATE public.issue_reports SET status = 'in_progress' WHERE id = 'i0000000-0000-0000-0000-000000000006';
-UPDATE public.issue_reports SET status = 'community_verified' WHERE id = 'i0000000-0000-0000-0000-000000000007';
-UPDATE public.issue_reports SET status = 'awaiting_community_verification' WHERE id = 'i0000000-0000-0000-0000-000000000008';
-UPDATE public.issue_reports SET status = 'in_progress' WHERE id = 'i0000000-0000-0000-0000-000000000009';
-UPDATE public.issue_reports SET status = 'community_verified' WHERE id = 'i0000000-0000-0000-0000-000000000010';
-UPDATE public.issue_reports SET status = 'in_progress' WHERE id = 'i0000000-0000-0000-0000-000000000011';
-UPDATE public.issue_reports SET status = 'community_verified' WHERE id = 'i0000000-0000-0000-0000-000000000012';
-UPDATE public.issue_reports SET status = 'submitted' WHERE id = 'i0000000-0000-0000-0000-000000000013';
-UPDATE public.issue_reports SET status = 'in_progress' WHERE id = 'i0000000-0000-0000-0000-000000000014';
-UPDATE public.issue_reports SET status = 'closed' WHERE id = 'i0000000-0000-0000-0000-000000000015';
+UPDATE public.issue_reports SET status = 'in_progress' WHERE id = '15500000-0000-0000-0000-000000000001';
+UPDATE public.issue_reports SET status = 'submitted' WHERE id = '15500000-0000-0000-0000-000000000002';
+UPDATE public.issue_reports SET status = 'resolved_by_authority' WHERE id = '15500000-0000-0000-0000-000000000003';
+UPDATE public.issue_reports SET status = 'seen_by_authority' WHERE id = '15500000-0000-0000-0000-000000000004';
+UPDATE public.issue_reports SET status = 'community_verification_pending' WHERE id = '15500000-0000-0000-0000-000000000005';
+UPDATE public.issue_reports SET status = 'in_progress' WHERE id = '15500000-0000-0000-0000-000000000006';
+UPDATE public.issue_reports SET status = 'community_verified' WHERE id = '15500000-0000-0000-0000-000000000007';
+UPDATE public.issue_reports SET status = 'awaiting_community_verification' WHERE id = '15500000-0000-0000-0000-000000000008';
+UPDATE public.issue_reports SET status = 'in_progress' WHERE id = '15500000-0000-0000-0000-000000000009';
+UPDATE public.issue_reports SET status = 'community_verified' WHERE id = '15500000-0000-0000-0000-000000000010';
+UPDATE public.issue_reports SET status = 'in_progress' WHERE id = '15500000-0000-0000-0000-000000000011';
+UPDATE public.issue_reports SET status = 'community_verified' WHERE id = '15500000-0000-0000-0000-000000000012';
+UPDATE public.issue_reports SET status = 'submitted' WHERE id = '15500000-0000-0000-0000-000000000013';
+UPDATE public.issue_reports SET status = 'in_progress' WHERE id = '15500000-0000-0000-0000-000000000014';
+UPDATE public.issue_reports SET status = 'closed' WHERE id = '15500000-0000-0000-0000-000000000015';
 
 
 -- 6. SEED MEDIA FOR DISPATCHED ISSUES
 INSERT INTO public.issue_media (issue_id, media_url, media_type, sort_order) VALUES
-('i0000000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?w=600', 'image', 0),
-('i0000000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600', 'image', 0),
-('i0000000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600', 'image', 0),
-('i0000000-0000-0000-0000-000000000007', 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600', 'image', 0),
-('i0000000-0000-0000-0000-000000000009', 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=600', 'image', 0);
+('15500000-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?w=600', 'image', 0),
+('15500000-0000-0000-0000-000000000003', 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600', 'image', 0),
+('15500000-0000-0000-0000-000000000005', 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600', 'image', 0),
+('15500000-0000-0000-0000-000000000007', 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=600', 'image', 0),
+('15500000-0000-0000-0000-000000000009', 'https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=600', 'image', 0);
 
 
 -- 7. SEED ENGAGEMENT (supports, confirmations, comments)
 -- Issue 1 supports (8 supports)
 INSERT INTO public.supports (user_id, issue_id) VALUES
-('f0000000-0000-0000-0001-000000000002', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0001-000000000003', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0001-000000000004', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0001-000000000005', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0001-000000000006', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0002-000000000001', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0002-000000000002', 'i0000000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0003-000000000001', 'i0000000-0000-0000-0000-000000000001');
+('f0000000-0000-0000-0001-000000000002', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0001-000000000003', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0001-000000000004', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0001-000000000005', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0001-000000000006', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0002-000000000001', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0002-000000000002', '15500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0003-000000000001', '15500000-0000-0000-0000-000000000001');
 
 -- Issue 1 confirmations (5 confirmations)
 INSERT INTO public.confirmations (user_id, issue_id, confirmation_type) VALUES
-('f0000000-0000-0000-0001-000000000002', 'i0000000-0000-0000-0000-000000000001', 'existence'),
-('f0000000-0000-0000-0001-000000000003', 'i0000000-0000-0000-0000-000000000001', 'existence'),
-('f0000000-0000-0000-0001-000000000004', 'i0000000-0000-0000-0000-000000000001', 'existence'),
-('f0000000-0000-0000-0001-000000000005', 'i0000000-0000-0000-0000-000000000001', 'existence'),
-('f0000000-0000-0000-0001-000000000006', 'i0000000-0000-0000-0000-000000000001', 'existence');
+('f0000000-0000-0000-0001-000000000002', '15500000-0000-0000-0000-000000000001', 'existence'),
+('f0000000-0000-0000-0001-000000000003', '15500000-0000-0000-0000-000000000001', 'existence'),
+('f0000000-0000-0000-0001-000000000004', '15500000-0000-0000-0000-000000000001', 'existence'),
+('f0000000-0000-0000-0001-000000000005', '15500000-0000-0000-0000-000000000001', 'existence'),
+('f0000000-0000-0000-0001-000000000006', '15500000-0000-0000-0000-000000000001', 'existence');
 
 -- Issue 1 comments
 INSERT INTO public.comments (author_id, issue_id, content) VALUES
-('f0000000-0000-0000-0001-000000000003', 'i0000000-0000-0000-0000-000000000001', 'I had a flat tire here last night, BMC needs to fix this ASAP.'),
-('df000000-0000-0000-0000-000000000001', 'i0000000-0000-0000-0000-000000000001', 'I have requested the Mumbai Road Department to deploy dry mix patch work teams tonight.');
+('f0000000-0000-0000-0001-000000000003', '15500000-0000-0000-0000-000000000001', 'I had a flat tire here last night, BMC needs to fix this ASAP.'),
+('df000000-0000-0000-0000-000000000001', '15500000-0000-0000-0000-000000000001', 'I have requested the Mumbai Road Department to deploy dry mix patch work teams tonight.');
 
 -- Issue 6 supports (6 supports)
 INSERT INTO public.supports (user_id, issue_id) VALUES
-('f0000000-0000-0000-0002-000000000002', 'i0000000-0000-0000-0000-000000000006'),
-('f0000000-0000-0000-0002-000000000003', 'i0000000-0000-0000-0000-000000000006'),
-('f0000000-0000-0000-0002-000000000004', 'i0000000-0000-0000-0000-000000000006'),
-('f0000000-0000-0000-0002-000000000005', 'i0000000-0000-0000-0000-000000000006'),
-('f0000000-0000-0000-0002-000000000006', 'i0000000-0000-0000-0000-000000000006'),
-('f0000000-0000-0000-0001-000000000001', 'i0000000-0000-0000-0000-000000000006');
+('f0000000-0000-0000-0002-000000000002', '15500000-0000-0000-0000-000000000006'),
+('f0000000-0000-0000-0002-000000000003', '15500000-0000-0000-0000-000000000006'),
+('f0000000-0000-0000-0002-000000000004', '15500000-0000-0000-0000-000000000006'),
+('f0000000-0000-0000-0002-000000000005', '15500000-0000-0000-0000-000000000006'),
+('f0000000-0000-0000-0002-000000000006', '15500000-0000-0000-0000-000000000006'),
+('f0000000-0000-0000-0001-000000000001', '15500000-0000-0000-0000-000000000006');
 
 -- Issue 6 confirmations
 INSERT INTO public.confirmations (user_id, issue_id, confirmation_type) VALUES
-('f0000000-0000-0000-0002-000000000002', 'i0000000-0000-0000-0000-000000000006', 'existence'),
-('f0000000-0000-0000-0002-000000000003', 'i0000000-0000-0000-0000-000000000006', 'existence'),
-('f0000000-0000-0000-0002-000000000004', 'i0000000-0000-0000-0000-000000000006', 'existence');
+('f0000000-0000-0000-0002-000000000002', '15500000-0000-0000-0000-000000000006', 'existence'),
+('f0000000-0000-0000-0002-000000000003', '15500000-0000-0000-0000-000000000006', 'existence'),
+('f0000000-0000-0000-0002-000000000004', '15500000-0000-0000-0000-000000000006', 'existence');
 
 -- Issue 6 comments
 INSERT INTO public.comments (author_id, issue_id, content) VALUES
-('f0000000-0000-0000-0002-000000000003', 'i0000000-0000-0000-0000-000000000006', 'The toxic smoke is visible from the metro station. Highly hazardous.'),
-('df000000-0000-0000-0000-000000000002', 'i0000000-0000-0000-0000-000000000006', 'Inspection completed by DPCC. Fines served to the operating unit.');
+('f0000000-0000-0000-0002-000000000003', '15500000-0000-0000-0000-000000000006', 'The toxic smoke is visible from the metro station. Highly hazardous.'),
+('df000000-0000-0000-0000-000000000002', '15500000-0000-0000-0000-000000000006', 'Inspection completed by DPCC. Fines served to the operating unit.');
 
 -- Issue 9 supports (5 supports)
 INSERT INTO public.supports (user_id, issue_id) VALUES
-('f0000000-0000-0000-0003-000000000002', 'i0000000-0000-0000-0000-000000000009'),
-('f0000000-0000-0000-0003-000000000003', 'i0000000-0000-0000-0000-000000000009'),
-('f0000000-0000-0000-0003-000000000004', 'i0000000-0000-0000-0000-000000000009'),
-('f0000000-0000-0000-0003-000000000005', 'i0000000-0000-0000-0000-000000000009'),
-('f0000000-0000-0000-0003-000000000006', 'i0000000-0000-0000-0000-000000000009');
+('f0000000-0000-0000-0003-000000000002', '15500000-0000-0000-0000-000000000009'),
+('f0000000-0000-0000-0003-000000000003', '15500000-0000-0000-0000-000000000009'),
+('f0000000-0000-0000-0003-000000000004', '15500000-0000-0000-0000-000000000009'),
+('f0000000-0000-0000-0003-000000000005', '15500000-0000-0000-0000-000000000009'),
+('f0000000-0000-0000-0003-000000000006', '15500000-0000-0000-0000-000000000009');
 
 -- Issue 9 confirmations
 INSERT INTO public.confirmations (user_id, issue_id, confirmation_type) VALUES
-('f0000000-0000-0000-0003-000000000002', 'i0000000-0000-0000-0000-000000000009', 'existence'),
-('f0000000-0000-0000-0003-000000000003', 'i0000000-0000-0000-0000-000000000009', 'existence');
+('f0000000-0000-0000-0003-000000000002', '15500000-0000-0000-0000-000000000009', 'existence'),
+('f0000000-0000-0000-0003-000000000003', '15500000-0000-0000-0000-000000000009', 'existence');
 
 -- Issue 9 comments
 INSERT INTO public.comments (author_id, issue_id, content) VALUES
-('f0000000-0000-0000-0003-000000000003', 'i0000000-0000-0000-0000-000000000009', 'Silk Board needs a bypass routing for heavy vehicles during mornings.');
+('f0000000-0000-0000-0003-000000000003', '15500000-0000-0000-0000-000000000009', 'Silk Board needs a bypass routing for heavy vehicles during mornings.');
 
 
 -- 8. TIMELINE UPDATES FOR CRITICAL ISSUES
 -- Issue 1 timeline logs
 INSERT INTO public.issue_timeline (issue_id, actor_id, previous_status, new_status, note) VALUES
-('i0000000-0000-0000-0000-000000000001', 'df000000-0000-0000-0000-000000000001', 'community_verification_pending', 'seen_by_authority', 'Site inspection completed by local engineer.'),
-('i0000000-0000-0000-0000-000000000001', 'df000000-0000-0000-0000-000000000001', 'seen_by_authority', 'in_progress', 'Repair crew assigned. Patching scheduled for tonight.');
+('15500000-0000-0000-0000-000000000001', 'df000000-0000-0000-0000-000000000001', 'community_verification_pending', 'seen_by_authority', 'Site inspection completed by local engineer.'),
+('15500000-0000-0000-0000-000000000001', 'df000000-0000-0000-0000-000000000001', 'seen_by_authority', 'in_progress', 'Repair crew assigned. Patching scheduled for tonight.');
 
 -- Issue 6 timeline logs
 INSERT INTO public.issue_timeline (issue_id, actor_id, previous_status, new_status, note) VALUES
-('i0000000-0000-0000-0000-000000000006', 'df000000-0000-0000-0000-000000000002', 'community_verification_pending', 'seen_by_authority', 'DPCC team visited site. Industrial waste incineration noted.'),
-('i0000000-0000-0000-0000-000000000006', 'df000000-0000-0000-0000-000000000002', 'seen_by_authority', 'in_progress', 'Legal show-cause notice served to the factory manager.');
+('15500000-0000-0000-0000-000000000006', 'df000000-0000-0000-0000-000000000002', 'community_verification_pending', 'seen_by_authority', 'DPCC team visited site. Industrial waste incineration noted.'),
+('15500000-0000-0000-0000-000000000006', 'df000000-0000-0000-0000-000000000002', 'seen_by_authority', 'in_progress', 'Legal show-cause notice served to the factory manager.');
 
 -- Issue 9 timeline logs
 INSERT INTO public.issue_timeline (issue_id, actor_id, previous_status, new_status, note) VALUES
-('i0000000-0000-0000-0000-000000000009', 'df000000-0000-0000-0000-000000000004', 'community_verification_pending', 'seen_by_authority', 'Traffic police commissioner notified regarding signaling delay.'),
-('i0000000-0000-0000-0000-000000000009', 'df000000-0000-0000-0000-000000000004', 'seen_by_authority', 'in_progress', 'Reprogrammed smart signaling timers deployed.');
+('15500000-0000-0000-0000-000000000009', 'df000000-0000-0000-0000-000000000004', 'community_verification_pending', 'seen_by_authority', 'Traffic police commissioner notified regarding signaling delay.'),
+('15500000-0000-0000-0000-000000000009', 'df000000-0000-0000-0000-000000000004', 'seen_by_authority', 'in_progress', 'Reprogrammed smart signaling timers deployed.');
 
 
 -- 9. SEED CIVIC DISCUSSIONS (6 posts)
 INSERT INTO public.discussions (id, author_id, content, discussion_type, city_id) VALUES
-('dis00000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0003-000000000001', 'We need strict transparency and centralized tech audits for national exams. Millions of student futures are at stake in the upcoming NEET reforms.', 'opinion', 'c0000000-0000-0000-0000-000000000003'),
-('dis00000-0000-0000-0000-000000000002', 'f0000000-0000-0000-0002-000000000001', 'E20 petrol blending is rolling out very fast across India. But does your vehicle engine support it? Share your experience with mileage drop or spark plug issues.', 'awareness', 'c0000000-0000-0000-0000-000000000002'),
-('dis00000-0000-0000-0000-000000000003', 'f0000000-0000-0000-0001-000000000001', 'The delay in TET exam results is leaving many qualified teacher candidates unemployed. We suggest implementing a fixed yearly academic calendar.', 'suggestion', 'c0000000-0000-0000-0000-000000000001'),
-('dis00000-0000-0000-0000-000000000004', 'f0000000-0000-0000-0002-000000000003', 'Water levels are dropping. Let us compile working rainwater harvesting designs for apartment complexes in Delhi and Bengaluru.', 'suggestion', 'c0000000-0000-0000-0000-000000000002'),
-('dis00000-0000-0000-0000-000000000005', 'f0000000-0000-0000-0003-000000000002', 'Releasing open APIs for citizen grievance tracking could revolutionize how local ward authorities prioritize budget spending.', 'awareness', 'c0000000-0000-0000-0000-000000000003'),
-('dis00000-0000-0000-0000-000000000006', 'f0000000-0000-0000-0003-000000000003', 'Most citizens do not know that they can attend ward committee meetings. I suggest cities publicize meeting schedules on WhatsApp channels.', 'suggestion', 'c0000000-0000-0000-0000-000000000003');
+('d1500000-0000-0000-0000-000000000001', 'f0000000-0000-0000-0003-000000000001', 'We need strict transparency and centralized tech audits for national exams. Millions of student futures are at stake in the upcoming NEET reforms. #NEETPaperLeak', 'opinion', 'c0000000-0000-0000-0000-000000000003'),
+('d1500000-0000-0000-0000-000000000002', 'f0000000-0000-0000-0002-000000000001', 'E20 petrol blending is rolling out very fast across India. But does your vehicle engine support it? Share your experience with mileage drop or spark plug issues. #EthanolBlending', 'awareness', 'c0000000-0000-0000-0000-000000000002'),
+('d1500000-0000-0000-0000-000000000003', 'f0000000-0000-0000-0001-000000000001', 'The delay in TET exam results is leaving many qualified teacher candidates unemployed. We suggest implementing a fixed yearly academic calendar. #TeacherRecruitment', 'suggestion', 'c0000000-0000-0000-0000-000000000001'),
+('d1500000-0000-0000-0000-000000000004', 'f0000000-0000-0000-0002-000000000003', 'Water levels are dropping. Let us compile working rainwater harvesting designs for apartment complexes in Delhi and Bengaluru. #WaterConservation', 'suggestion', 'c0000000-0000-0000-0000-000000000002'),
+('d1500000-0000-0000-0000-000000000005', 'f0000000-0000-0000-0003-000000000002', 'Releasing open APIs for citizen grievance tracking could revolutionize how local ward authorities prioritize budget spending. #SmartCity', 'awareness', 'c0000000-0000-0000-0000-000000000003'),
+('d1500000-0000-0000-0000-000000000006', 'f0000000-0000-0000-0003-000000000003', 'Most citizens do not know that they can attend ward committee meetings. I suggest cities publicize meeting schedules on WhatsApp channels. #RoadSafety', 'suggestion', 'c0000000-0000-0000-0000-000000000003');
 
 -- Seed discussion supports
 INSERT INTO public.supports (user_id, discussion_id) VALUES
-('f0000000-0000-0000-0003-000000000002', 'dis00000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0003-000000000003', 'dis00000-0000-0000-0000-000000000001'),
-('f0000000-0000-0000-0002-000000000002', 'dis00000-0000-0000-0000-000000000002'),
-('f0000000-0000-0000-0002-000000000003', 'dis00000-0000-0000-0000-000000000002'),
-('f0000000-0000-0000-0001-000000000003', 'dis00000-0000-0000-0000-000000000003');
+('f0000000-0000-0000-0003-000000000002', 'd1500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0003-000000000003', 'd1500000-0000-0000-0000-000000000001'),
+('f0000000-0000-0000-0002-000000000002', 'd1500000-0000-0000-0000-000000000002'),
+('f0000000-0000-0000-0002-000000000003', 'd1500000-0000-0000-0000-000000000002'),
+('f0000000-0000-0000-0001-000000000003', 'd1500000-0000-0000-0000-000000000003');
 
 -- Seed discussion comments
 INSERT INTO public.comments (author_id, discussion_id, content) VALUES
-('f0000000-0000-0000-0003-000000000003', 'dis00000-0000-0000-0000-000000000001', 'Absolutely agree! Computer-based testing with double encryption is the way forward.'),
-('f0000000-0000-0000-0002-000000000002', 'dis00000-0000-0000-0000-000000000002', 'I noticed a slight engine knocking on my old bike after filling blended petrol.');
+('f0000000-0000-0000-0003-000000000003', 'd1500000-0000-0000-0000-000000000001', 'Absolutely agree! Computer-based testing with double encryption is the way forward.'),
+('f0000000-0000-0000-0002-000000000002', 'd1500000-0000-0000-0000-000000000002', 'I noticed a slight engine knocking on my old bike after filling blended petrol.');
 
 
 -- 10. RECALCULATE STATISTICS TO ENFORCE 100% INTEGRITY
