@@ -61,11 +61,12 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
   const [selectedSeverity, setSelectedSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
   
   // AI suggestions
-  const [aiSuggestions, setAiSuggestions] = useState<{
-    category: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    confidence: number;
-  } | null>(null);
+const [aiSuggestions, setAiSuggestions] = useState<{
+  category: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number;
+  summary?: string;
+} | null>(null);
 
   // Duplicates list
   const [duplicates, setDuplicates] = useState<DuplicateIssue[]>([]);
@@ -127,55 +128,145 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
   };
 
   // Run Simulated AI Analysis
-  const runAiAnalysis = () => {
-    if (!image && !description) {
-      toast.error('Please upload an image or write a description first.');
-      return;
+// ── Keyword fallback (used if Gemini fails) ──────────────────────────────────
+const runKeywordFallback = (title: string, description: string) => {
+  const text = `${title} ${description}`.toLowerCase();
+  let suggestedCategorySlug = 'other';
+  let confidence = 0.72;
+  let suggestedSeverity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+
+  if (text.includes('pothole') || text.includes('road') || text.includes('cracks')) {
+    suggestedCategorySlug = 'pothole'; suggestedSeverity = 'high'; confidence = 0.80;
+  } else if (text.includes('garbage') || text.includes('waste') || text.includes('trash') || text.includes('dump')) {
+    suggestedCategorySlug = 'garbage'; suggestedSeverity = 'medium'; confidence = 0.80;
+  } else if (text.includes('leak') || text.includes('water') || text.includes('leakage') || text.includes('pipe')) {
+    suggestedCategorySlug = 'water-leakage'; suggestedSeverity = 'high'; confidence = 0.78;
+  } else if (text.includes('light') || text.includes('streetlight') || text.includes('bulb') || text.includes('dark')) {
+    suggestedCategorySlug = 'broken-streetlight'; suggestedSeverity = 'medium'; confidence = 0.76;
+  } else if (text.includes('drain') || text.includes('sewage') || text.includes('overflow')) {
+    suggestedCategorySlug = 'drainage-problem'; suggestedSeverity = 'critical'; confidence = 0.79;
+  }
+
+  const match = categories.find((c) => c.slug === suggestedCategorySlug);
+  if (match) {
+    setSelectedCategory(match.id);
+    setSelectedSeverity(suggestedSeverity);
+    setAiSuggestions({ category: match.name, severity: suggestedSeverity, confidence });
+  }
+};
+
+// ── Real Gemini Vision Analysis ──────────────────────────────────────────────
+const runAiAnalysis = async () => {
+  if (!image && !description) {
+    toast.error('Please upload an image or write a description first.');
+    return;
+  }
+  setStep(2);
+
+  try {
+    const GEMINI_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+
+    // Build the parts array — always send text, add image if available
+    const parts: object[] = [
+      {
+        text: `You are a civic issue classification AI for an Indian municipal platform.
+
+Analyze this civic issue report and return ONLY a valid JSON object, no markdown, no explanation.
+
+Issue Title: "${title}"
+Issue Description: "${description}"
+
+${image ? 'An image of the issue is also provided above.' : 'No image provided — classify from text only.'}
+
+Valid categories (use exact slug): pothole, garbage, water-leakage, broken-streetlight, drainage-problem, damaged-infrastructure, other
+Valid severity levels: low, medium, high, critical
+
+Return this exact JSON structure:
+{
+  "category_slug": "pothole",
+  "severity": "high",
+  "confidence": 0.94,
+  "summary": "One sentence describing what was detected in the image/text."
+}`
+      }
+    ];
+
+    // If image is available, convert to base64 and add as inline_data
+    if (image) {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          // Strip "data:image/jpeg;base64," prefix — keep only base64 bytes
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(image);
+      });
+
+      // Insert image part BEFORE text part (Gemini reads image first)
+      parts.unshift({
+        inline_data: {
+          mime_type: image.type || 'image/jpeg',
+          data: base64,
+        }
+      });
     }
-    setStep(2);
 
-    setTimeout(() => {
-      // Analyze text keywords to suggest category
-      const text = `${title} ${description}`.toLowerCase();
-      let suggestedCategorySlug = 'other';
-      let confidence = 0.82;
-      let suggestedSeverity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
-
-      if (text.includes('pothole') || text.includes('road') || text.includes('cracks')) {
-        suggestedCategorySlug = 'pothole';
-        suggestedSeverity = 'high';
-        confidence = 0.94;
-      } else if (text.includes('garbage') || text.includes('waste') || text.includes('trash') || text.includes('dump')) {
-        suggestedCategorySlug = 'garbage';
-        suggestedSeverity = 'medium';
-        confidence = 0.96;
-      } else if (text.includes('leak') || text.includes('water') || text.includes('leakage') || text.includes('pipe')) {
-        suggestedCategorySlug = 'water-leakage';
-        suggestedSeverity = 'high';
-        confidence = 0.91;
-      } else if (text.includes('light') || text.includes('streetlight') || text.includes('bulb') || text.includes('dark')) {
-        suggestedCategorySlug = 'broken-streetlight';
-        suggestedSeverity = 'medium';
-        confidence = 0.89;
-      } else if (text.includes('drain') || text.includes('sewage') || text.includes('overflow')) {
-        suggestedCategorySlug = 'drainage-problem';
-        suggestedSeverity = 'critical';
-        confidence = 0.93;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: {
+            temperature: 0.1,      // low temp = consistent structured output
+            maxOutputTokens: 200,
+          }
+        }),
       }
+    );
 
-      const match = categories.find((c) => c.slug === suggestedCategorySlug);
-      if (match) {
-        setSelectedCategory(match.id);
-        setSelectedSeverity(suggestedSeverity);
-        setAiSuggestions({
-          category: match.name,
-          severity: suggestedSeverity,
-          confidence,
-        });
-      }
-      setStep(3);
-    }, 2000);
-  };
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Clean any accidental markdown fences Gemini sometimes adds
+    const cleaned = rawText.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(cleaned);
+
+    // Map Gemini's category_slug to our DB category
+    const match = categories.find((c) => c.slug === parsed.category_slug);
+    const severity = ['low', 'medium', 'high', 'critical'].includes(parsed.severity)
+      ? parsed.severity as 'low' | 'medium' | 'high' | 'critical'
+      : 'medium';
+
+    if (match) {
+      setSelectedCategory(match.id);
+      setSelectedSeverity(severity);
+      setAiSuggestions({
+        category: match.name,
+        severity,
+        confidence: Math.min(Math.max(parsed.confidence || 0.85, 0), 1),
+        summary: parsed.summary || '',
+      });
+    } else {
+      // Gemini returned an unknown slug — run keyword fallback
+      runKeywordFallback(title, description);
+    }
+
+  } catch (err) {
+    // ── FALLBACK: if Gemini fails for any reason, silently use keyword matching ──
+    console.warn('Gemini analysis failed, using keyword fallback:', err);
+    runKeywordFallback(title, description);
+  }
+
+  setStep(3);
+};
 
   // Check for duplicates
   const checkForDuplicates = async () => {
@@ -517,6 +608,11 @@ export const CreateIssuePage: React.FC<CreateIssuePageProps> = ({ onBack }) => {
                   {Math.round(aiSuggestions.confidence * 100)}% match) · Severity:{' '}
                   <strong style={{ textTransform: 'capitalize' }}>{aiSuggestions.severity}</strong>
                 </p>
+                {aiSuggestions.summary && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    {aiSuggestions.summary}
+                  </p>
+                )}
               </div>
             </div>
           )}
