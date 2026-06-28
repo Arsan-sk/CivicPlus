@@ -106,6 +106,81 @@ export const HomePage: React.FC = () => {
     fetchUserInteractions();
   }, [profile, issues, discussions]);
 
+  const [expandedDiscussionId, setExpandedDiscussionId] = useState<string | null>(null);
+  const [discussionReplies, setDiscussionReplies] = useState<any[]>([]);
+  const [loadingReplies, setLoadingReplies] = useState(false);
+  const [newReplyContent, setNewReplyContent] = useState('');
+  const [postingReply, setPostingReply] = useState(false);
+
+  useEffect(() => {
+    if (!expandedDiscussionId) {
+      setDiscussionReplies([]);
+      return;
+    }
+    const fetchReplies = async () => {
+      setLoadingReplies(true);
+      try {
+        const { data, error } = await supabase
+          .from('comments')
+          .select(`
+            id, content, created_at,
+            profiles (full_name, username, avatar_url)
+          `)
+          .eq('discussion_id', expandedDiscussionId)
+          .order('created_at', { ascending: true });
+        
+        if (error) throw error;
+        setDiscussionReplies(data || []);
+      } catch (err) {
+        console.error(err);
+        toast.error('Failed to load replies.');
+      } finally {
+        setLoadingReplies(false);
+      }
+    };
+    fetchReplies();
+  }, [expandedDiscussionId]);
+
+  const handlePostReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile || !expandedDiscussionId || !newReplyContent.trim()) return;
+
+    setPostingReply(true);
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          discussion_id: expandedDiscussionId,
+          author_id: profile.id,
+          content: newReplyContent.trim()
+        })
+        .select(`
+          id, content, created_at,
+          profiles (full_name, username, avatar_url)
+        `)
+        .single();
+
+      if (error) throw error;
+      
+      setDiscussionReplies(prev => [...prev, data]);
+      setNewReplyContent('');
+      
+      setDiscussions(prev => prev.map(p => {
+        if (p.id === expandedDiscussionId) {
+          return { ...p, comment_count: (p.comment_count || 0) + 1 };
+        }
+        return p;
+      }));
+      
+      toast.success('Reply posted!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to post reply.');
+    } finally {
+      setPostingReply(false);
+    }
+  };
+
   useEffect(() => {
     // Fetch categories for filters
     const fetchCategories = async () => {
@@ -541,7 +616,7 @@ export const HomePage: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/issues/${issue.id}`)}
+                      onClick={() => navigate(`/issues/${issue.id}?focus=comments`)}
                       className="flex align-center gap-1"
                     >
                       <Chat size={18} />
@@ -609,16 +684,66 @@ export const HomePage: React.FC = () => {
                     <ThumbsUp size={16} weight={supportedDiscussionIds.includes(post.id) ? "fill" : "regular"} />
                     <span>{post.support_count} Upvotes</span>
                   </Button>
-                  <Button
+                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate(`/discussions/${post.id}`)}
+                    onClick={() => setExpandedDiscussionId(expandedDiscussionId === post.id ? null : post.id)}
                     className="flex align-center gap-1"
+                    style={expandedDiscussionId === post.id ? { color: 'var(--primary)', fontWeight: 600 } : {}}
                   >
                     <Chat size={16} />
                     <span>{post.comment_count} Replies</span>
                   </Button>
                 </div>
+
+                {expandedDiscussionId === post.id && (
+                  <div className="border-t pt-3 mt-1 flex flex-col gap-3" style={{ borderColor: 'var(--border)' }}>
+                    {/* Add reply form */}
+                    {profile ? (
+                      <form onSubmit={handlePostReply} className="flex gap-2">
+                        <input
+                          className="form-input flex-1"
+                          placeholder="Write a reply..."
+                          style={{ padding: '0.375rem 0.75rem', fontSize: '0.8125rem', borderRadius: 'var(--radius-md)' }}
+                          value={newReplyContent}
+                          onChange={(e) => setNewReplyContent(e.target.value)}
+                          required
+                        />
+                        <Button type="submit" size="sm" loading={postingReply}>
+                          Reply
+                        </Button>
+                      </form>
+                    ) : (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sign in to reply.</p>
+                    )}
+
+                    {/* Replies list */}
+                    <div className="flex flex-col gap-2 mt-1">
+                      {loadingReplies ? (
+                        <div className="skeleton" style={{ height: '40px', width: '100%' }} />
+                      ) : discussionReplies.length > 0 ? (
+                        discussionReplies.map((reply) => (
+                          <div key={reply.id} className="flex gap-2 align-start p-2 rounded" style={{ backgroundColor: 'var(--bg-offset)', fontSize: '0.8125rem' }}>
+                            <Avatar name={reply.profiles?.full_name} src={reply.profiles?.avatar_url} size={24} />
+                            <div style={{ flex: 1 }}>
+                              <div className="flex justify-between align-center flex-wrap">
+                                <strong style={{ color: 'var(--text-heading)', fontSize: '0.75rem' }}>
+                                  {reply.profiles?.full_name}
+                                </strong>
+                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                                  @{reply.profiles?.username}
+                                </span>
+                              </div>
+                              <p style={{ margin: '0.125rem 0 0', color: 'var(--text)' }}>{reply.content}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>No replies yet. Be the first to reply!</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </Card>
             ))
           ) : (

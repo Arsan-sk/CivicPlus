@@ -431,27 +431,27 @@ export const ProfilePage: React.FC = () => {
           <div className="grid grid-cols-6 gap-2 border-t pt-4" style={{ borderColor: 'var(--border)', textAlign: 'center' }}>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>{profileData.issues_raised_count}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>Raised</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Issues Raised</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--success)' }}>{profileData.issues_resolved_count}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>Resolved</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>{profileData.confirmations_given_count}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>Verify It!</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>{profileData.issues_resolved_count || 0}</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Issues Resolved</div>
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>{profileData.supports_given_count}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>Supports</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Supports</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>{profileData.confirmations_given_count}</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Verify It!</div>
             </div>
             <div>
               <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary)' }}>{profileData.contribution_score}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>Score</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Contribution Score</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--warning)' }}>#{cityRank}</div>
-              <div style={{ fontSize: '0.625rem', color: 'var(--text-muted)' }}>City Rank</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-heading)' }}>#{cityRank}</div>
+              <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>City Rank</div>
             </div>
           </div>
         ) : (

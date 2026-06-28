@@ -19,6 +19,12 @@ export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
+  React.useEffect(() => {
+    if (user) {
+      navigate('/home', { replace: true });
+    }
+  }, [user, navigate]);
+
   const handleStart = () => {
     if (user) {
       navigate('/home');

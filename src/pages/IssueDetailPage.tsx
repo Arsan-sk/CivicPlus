@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -88,6 +88,25 @@ export const IssueDetailPage: React.FC = () => {
   const [newStatus, setNewStatus] = useState('');
   const [statusNote, setStatusNote] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const commentsCardRef = useRef<HTMLDivElement>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading) {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get('focus') === 'comments') {
+        setTimeout(() => {
+          if (commentInputRef.current) {
+            commentInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            commentInputRef.current.focus();
+          } else if (commentsCardRef.current) {
+            commentsCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+      }
+    }
+  }, [loading]);
 
   const [userSupported, setUserSupported] = useState(false);
   const [userConfirmations, setUserConfirmations] = useState<string[]>([]);
@@ -640,7 +659,7 @@ export const IssueDetailPage: React.FC = () => {
       </Card>
 
       {/* COMMENTS FEED & BOX */}
-      <Card className="flex flex-col gap-4">
+      <Card ref={commentsCardRef} className="flex flex-col gap-4">
         <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>Discussion Threads ({comments.length})</h4>
         
         {/* Comment input form */}
@@ -649,6 +668,7 @@ export const IssueDetailPage: React.FC = () => {
             <Avatar name={profile.full_name} src={profile.avatar_url} size={32} />
             <div className="flex flex-1 align-center border rounded-md px-3 bg-offset" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-offset)', borderRadius: 'var(--radius-md)' }}>
               <input
+                ref={commentInputRef}
                 className="form-input flex-1"
                 placeholder="Ask for details or write a feedback response..."
                 style={{ border: 'none', background: 'none', boxShadow: 'none', padding: '0.5rem 0' }}

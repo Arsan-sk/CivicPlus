@@ -106,7 +106,7 @@ export const CityPage: React.FC = () => {
           .from('authorities')
           .select(`
             id, position, jurisdiction_level,
-            profiles (full_name, username, avatar_url, is_verified)
+            profiles:profiles!authorities_profile_id_fkey (full_name, username, avatar_url, is_verified)
           `)
           .or(`city_id.eq.${statsData.city_id},state_id.eq.${rawCity?.state_id || ''}`);
 
@@ -144,6 +144,17 @@ export const CityPage: React.FC = () => {
       </Card>
     );
   }
+
+  const getStateCode = (stateName: string) => {
+    const map: Record<string, string> = {
+      'Maharashtra': 'MH',
+      'Delhi': 'DL',
+      'Karnataka': 'KA',
+      'Tamil Nadu': 'TN',
+      'Telangana': 'TS'
+    };
+    return map[stateName] || 'IN';
+  };
 
   // Map officials
   const chiefMinister = officials.find(x => x.position === 'Chief Minister');
@@ -238,8 +249,25 @@ export const CityPage: React.FC = () => {
 
           {/* State Jurisdiction CM Card */}
           <div className="flex flex-col">
-            <Card style={{ padding: '1.5rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid var(--border)' }}>
-              <div>
+            <Card style={{ padding: '1.5rem', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
+              {/* Semi-transparent Watermark Background Emblem Badge */}
+              <div style={{
+                position: 'absolute',
+                right: '-15px',
+                bottom: '10px',
+                fontSize: '8.5rem',
+                fontWeight: 900,
+                color: 'var(--text-heading)',
+                opacity: 0.05,
+                lineHeight: 1,
+                pointerEvents: 'none',
+                userSelect: 'none',
+                zIndex: 0
+              }}>
+                {getStateCode(stats.state_name)}
+              </div>
+
+              <div style={{ zIndex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <Buildings size={20} color="var(--primary)" />
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>State Jurisdiction Info</span>
@@ -250,26 +278,28 @@ export const CityPage: React.FC = () => {
                 </p>
               </div>
 
-              {chiefMinister ? (
-                <div 
-                  className="flex align-center gap-3 p-3 mt-4 rounded-md card-interactive" 
-                  style={{ backgroundColor: 'var(--bg-offset)', cursor: 'pointer', border: '1px solid var(--border)' }}
-                  onClick={() => navigate(`/profile/${chiefMinister.profiles.username}`)}
-                >
-                  <Avatar name={chiefMinister.profiles.full_name} src={chiefMinister.profiles.avatar_url} size={40} />
-                  <div>
-                    <div className="flex align-center gap-1">
-                      <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>{chiefMinister.profiles.full_name}</strong>
-                      <ShieldCheck size={14} color="var(--success)" weight="fill" />
+              <div style={{ zIndex: 1, marginTop: '1.5rem' }}>
+                {chiefMinister ? (
+                  <div 
+                    className="flex align-center gap-3 p-3 rounded-md card-interactive" 
+                    style={{ backgroundColor: 'var(--bg-offset)', cursor: 'pointer', border: '1px solid var(--border)' }}
+                    onClick={() => navigate(`/profile/${chiefMinister.profiles.username}`)}
+                  >
+                    <Avatar name={chiefMinister.profiles.full_name} src={chiefMinister.profiles.avatar_url} size={40} />
+                    <div>
+                      <div className="flex align-center gap-1">
+                        <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)' }}>{chiefMinister.profiles.full_name}</strong>
+                        <ShieldCheck size={14} color="var(--success)" weight="fill" />
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Chief Minister</div>
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Chief Minister</div>
                   </div>
-                </div>
-              ) : (
-                <div className="p-3 mt-4 rounded-md" style={{ backgroundColor: 'var(--bg-offset)', border: '1px dashed var(--border)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  State Chief Minister unlinked in statistics.
-                </div>
-              )}
+                ) : (
+                  <div className="p-3 rounded-md" style={{ backgroundColor: 'var(--bg-offset)', border: '1px dashed var(--border)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    State Chief Minister unlinked in statistics.
+                  </div>
+                )}
+              </div>
             </Card>
           </div>
         </div>
