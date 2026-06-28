@@ -578,6 +578,12 @@ Return in this exact JSON structure as shown in below example:
       {/* STEP 2: AI ANALYZING PROGRESS */}
       {step === 2 && (
         <Card style={{ textAlign: 'center', padding: '3rem 2rem' }} className="flex flex-col align-center gap-4">
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
           <div
             style={{
               width: '50px',
@@ -586,6 +592,7 @@ Return in this exact JSON structure as shown in below example:
               borderTop: '4px solid var(--primary)',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite',
+              margin: '0 auto',
             }}
           />
           <h3 style={{ fontSize: '1.25rem' }}>AI Scanner Running</h3>
@@ -615,6 +622,9 @@ Return in this exact JSON structure as shown in below example:
                 <strong style={{ color: 'var(--primary)', fontSize: '0.875rem' }}>
                   AI Detection Completed
                 </strong>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '0.25rem', fontWeight: 400 }}>
+                  (By Gemini 2.5 Flash)
+                </span>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--text)', marginTop: '0.25rem' }}>
                   Suggested Category: <strong>{aiSuggestions.category}</strong> (
                   {Math.round(aiSuggestions.confidence * 100)}% match) · Severity:{' '}
