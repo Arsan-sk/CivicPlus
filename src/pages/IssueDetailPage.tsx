@@ -53,6 +53,8 @@ interface IssueDetail {
   resolution_confirmation_count: number;
   comment_count: number;
   created_at: string;
+  city_id: string;
+  assigned_department_id?: string;
   profiles: {
     id: string;
     full_name: string;
@@ -69,6 +71,11 @@ interface IssueDetail {
   issue_media?: {
     media_url: string;
   }[];
+  cities?: {
+    id: string;
+    name: string;
+    state_id: string;
+  };
 }
 
 export const IssueDetailPage: React.FC = () => {
@@ -88,6 +95,7 @@ export const IssueDetailPage: React.FC = () => {
   const [newStatus, setNewStatus] = useState('');
   const [statusNote, setStatusNote] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [authorityInfo, setAuthorityInfo] = useState<any | null>(null);
 
   const commentsCardRef = useRef<HTMLDivElement>(null);
   const commentInputRef = useRef<HTMLInputElement>(null);
@@ -111,17 +119,62 @@ export const IssueDetailPage: React.FC = () => {
   const [userSupported, setUserSupported] = useState(false);
   const [userConfirmations, setUserConfirmations] = useState<string[]>([]);
 
+  useEffect(() => {
+    const fetchAuthorityInfo = async () => {
+      if (profile?.role === 'authority') {
+        const { data } = await supabase
+          .from('authorities')
+          .select(`
+            *,
+            cities (name, state_id),
+            states (name)
+          `)
+          .eq('profile_id', profile.id)
+          .single();
+        if (data) setAuthorityInfo(data);
+      }
+    };
+    fetchAuthorityInfo();
+  }, [profile]);
+
+  const canAuthorityActOnIssue = () => {
+    if (!profile || profile.role !== 'authority' || !authorityInfo || !issue) return false;
+
+    // 1. National level (Prime Minister) can act on any issue
+    if (authorityInfo.jurisdiction_level === 'national') return true;
+
+    // 2. State level (Chief Minister / MLA) can act on any issue in their state
+    if (authorityInfo.jurisdiction_level === 'state') {
+      return issue.cities?.state_id === authorityInfo.state_id;
+    }
+
+    // 3. City level (Mayor / Municipal Commissioner / Ward Officer / Department Officer)
+    if (authorityInfo.jurisdiction_level === 'city') {
+      if (issue.city_id !== authorityInfo.city_id) return false;
+
+      // If it's a department officer, the issue must match their department
+      if (authorityInfo.department_id) {
+        return issue.assigned_department_id === authorityInfo.department_id;
+      }
+
+      return true;
+    }
+
+    return false;
+  };
+
   const fetchIssueDetails = async () => {
     try {
       // 1. Fetch main issue details
       const { data: issueData, error: issueError } = await supabase
         .from('issue_reports')
         .select(`
-          id, title, description, severity, status, address, support_count, confirmation_count, resolution_confirmation_count, comment_count, created_at,
+          id, title, description, severity, status, address, support_count, confirmation_count, resolution_confirmation_count, comment_count, created_at, city_id, assigned_department_id,
           profiles (id, full_name, username, avatar_url),
           issue_categories (name, color),
           departments (name),
-          issue_media (media_url)
+          issue_media (media_url),
+          cities (id, name, state_id)
         `)
         .eq('id', id)
         .single();
@@ -554,43 +607,83 @@ export const IssueDetailPage: React.FC = () => {
 
       {/* AUTHORITY ACTION PORTAL: Only displays for authorities */}
       {profile?.role === 'authority' && (
-        <Card className="flex flex-col gap-4" style={{ border: '2px solid var(--primary)' }}>
-          <h3 className="flex align-center gap-2" style={{ fontSize: '1.125rem' }}>
-            <Warning size={22} color="var(--primary)" weight="fill" />
-            Authority Action Center
-          </h3>
-          <form onSubmit={handleStatusChange} className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Assign New Lifecyle State"
-                options={[
-                  { value: 'community_verification_pending', label: 'Awaiting Verification' },
-                  { value: 'community_verified', label: 'Publicly Verified' },
-                  { value: 'seen_by_authority', label: 'Claimed / Seen' },
-                  { value: 'in_progress', label: 'Resolution In Progress' },
-                  { value: 'resolved_by_authority', label: 'Completed By Authority' },
-                  { value: 'awaiting_community_verification', label: 'Awaiting Citizen Closing' },
-                  { value: 'closed', label: 'Archive / Close' },
-                ]}
-                value={newStatus}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewStatus(e.target.value)}
-              />
-            </div>
-            <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-              <label className="form-label">Authority Progress Note</label>
-              <textarea
-                className="form-input"
-                placeholder="Details about active crew dispatch, repair timelines, or completed evidence details..."
-                value={statusNote}
-                onChange={(e) => setStatusNote(e.target.value)}
-                style={{ minHeight: '80px', resize: 'vertical' }}
-              />
-            </div>
-            <Button type="submit" loading={updatingStatus} style={{ alignSelf: 'flex-start' }}>
-              Post Work Update & Log Status
-            </Button>
-          </form>
-        </Card>
+        canAuthorityActOnIssue() ? (
+          <Card className="flex flex-col gap-4" style={{ border: '2px solid var(--primary)' }}>
+            <h3 className="flex align-center gap-2" style={{ fontSize: '1.125rem' }}>
+              <Warning size={22} color="var(--primary)" weight="fill" />
+              Authority Action Center
+            </h3>
+            {issue.status === 'resolved_by_authority' || issue.status === 'awaiting_community_verification' ? (
+              <div style={{ color: 'var(--success)', fontWeight: 600, fontSize: '0.875rem', padding: '0.75rem', backgroundColor: 'hsla(var(--success-hue), 69%, 40%, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid var(--success)' }}>
+                ✔ This issue has been marked Done. Awaiting citizen verification.
+              </div>
+            ) : issue.status === 'closed' || issue.status === 'community_verified_resolution' ? (
+              <div style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.875rem', padding: '0.75rem', backgroundColor: 'var(--bg-offset)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
+                🔒 This issue is fully resolved and archived. No action required.
+              </div>
+            ) : null}
+            <form onSubmit={handleStatusChange} className="flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  label="Assign New Lifecyle State"
+                  options={[
+                    ...(issue.status === 'awaiting_community_verification' || issue.status === 'resolved_by_authority'
+                      ? [{ value: issue.status, label: 'Awaiting Citizen Verification' }]
+                      : issue.status === 'closed' || issue.status === 'community_verified_resolution'
+                      ? [{ value: issue.status, label: 'Archived / Closed' }]
+                      : []),
+                    { value: 'seen_by_authority', label: 'Claimed / Seen' },
+                    { value: 'in_progress', label: 'Resolution In Progress' },
+                    { value: 'resolved_by_authority', label: 'Mark Done' },
+                  ]}
+                  value={newStatus}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setNewStatus(e.target.value)}
+                  disabled={
+                    issue.status === 'resolved_by_authority' ||
+                    issue.status === 'awaiting_community_verification' ||
+                    issue.status === 'closed' ||
+                    issue.status === 'community_verified_resolution'
+                  }
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                <label className="form-label">Authority Progress Note</label>
+                <textarea
+                  className="form-input"
+                  placeholder="Details about active crew dispatch, repair timelines, or completed evidence details..."
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  style={{ minHeight: '80px', resize: 'vertical' }}
+                  disabled={
+                    issue.status === 'resolved_by_authority' ||
+                    issue.status === 'awaiting_community_verification' ||
+                    issue.status === 'closed' ||
+                    issue.status === 'community_verified_resolution'
+                  }
+                />
+              </div>
+              <Button
+                type="submit"
+                loading={updatingStatus}
+                style={{ alignSelf: 'flex-start' }}
+                disabled={
+                  issue.status === 'resolved_by_authority' ||
+                  issue.status === 'awaiting_community_verification' ||
+                  issue.status === 'closed' ||
+                  issue.status === 'community_verified_resolution'
+                }
+              >
+                Post Work Update & Log Status
+              </Button>
+            </form>
+          </Card>
+        ) : (
+          <Card className="flex flex-col gap-2" style={{ border: '1px dashed var(--border)', backgroundColor: 'var(--bg-offset)' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+              🔒 Action Center Locked: You do not have jurisdiction to take actions on this issue.
+            </p>
+          </Card>
+        )
       )}
 
       {/* TIMELINE HISTORY LOGS */}
@@ -671,7 +764,7 @@ export const IssueDetailPage: React.FC = () => {
                 ref={commentInputRef}
                 className="form-input flex-1"
                 placeholder="Ask for details or write a feedback response..."
-                style={{ border: 'none', background: 'none', boxShadow: 'none', padding: '0.5rem 0' }}
+                style={{ border: 'none', background: 'none', boxShadow: 'none',  }}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 required
@@ -679,7 +772,7 @@ export const IssueDetailPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={postingComment || !newComment.trim()}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: 10 }}
               >
                 <PaperPlaneRight size={18} />
               </button>

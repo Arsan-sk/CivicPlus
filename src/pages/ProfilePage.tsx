@@ -193,7 +193,7 @@ export const ProfilePage: React.FC = () => {
               if (citiesList) {
                 cityPerf = citiesList.map(c => {
                   const cIssues = issueList.filter(i => i.city_id === c.id);
-                  const cResolved = cIssues.filter(i => i.status === 'closed' || i.status === 'community_verified_resolution').length;
+                  const cResolved = cIssues.filter(i => i.status === 'closed' || i.status === 'community_verified_resolution' || i.status === 'resolved_by_authority').length;
                   return {
                     name: c.name,
                     total: cIssues.length,
@@ -213,7 +213,7 @@ export const ProfilePage: React.FC = () => {
                 statePerf = statesList.map(s => {
                   const stateCityIds = allCities.filter(c => c.state_id === s.id).map(c => c.id);
                   const sIssues = issueList.filter(i => stateCityIds.includes(i.city_id));
-                  const sResolved = sIssues.filter(i => i.status === 'closed' || i.status === 'community_verified_resolution').length;
+                  const sResolved = sIssues.filter(i => i.status === 'closed' || i.status === 'community_verified_resolution' || i.status === 'resolved_by_authority').length;
                   return {
                     name: s.name,
                     total: sIssues.length,

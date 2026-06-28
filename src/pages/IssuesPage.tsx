@@ -50,6 +50,7 @@ export const IssuesPage: React.FC = () => {
   const [status, setStatus] = useState('');
   
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [authorityInfo, setAuthorityInfo] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -58,6 +59,25 @@ export const IssuesPage: React.FC = () => {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const fetchAuthorityInfo = async () => {
+      if (profile?.role === 'authority') {
+        const { data } = await supabase
+          .from('authorities')
+          .select(`
+            *,
+            cities (name),
+            states (name),
+            departments (name)
+          `)
+          .eq('profile_id', profile.id)
+          .single();
+        if (data) setAuthorityInfo(data);
+      }
+    };
+    fetchAuthorityInfo();
+  }, [profile]);
 
   const fetchIssuesList = async () => {
     setLoading(true);
@@ -72,9 +92,32 @@ export const IssuesPage: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (scope === 'city' && profile?.city_id) {
-        query = query.eq('city_id', profile.city_id);
+      if (profile?.role === 'authority') {
+        if (authorityInfo) {
+          if (authorityInfo.jurisdiction_level === 'state') {
+            const { data: stateCities } = await supabase
+              .from('cities')
+              .select('id')
+              .eq('state_id', authorityInfo.state_id);
+            const cityIds = (stateCities || []).map((c: any) => c.id);
+            query = query.in('city_id', cityIds);
+          } else if (authorityInfo.jurisdiction_level === 'city') {
+            query = query.eq('city_id', authorityInfo.city_id);
+            if (authorityInfo.department_id) {
+              query = query.eq('assigned_department_id', authorityInfo.department_id);
+            }
+          }
+        } else {
+          setIssues([]);
+          setLoading(false);
+          return;
+        }
+      } else {
+        if (scope === 'city' && profile?.city_id) {
+          query = query.eq('city_id', profile.city_id);
+        }
       }
+
       if (category) {
         query = query.eq('category_id', category);
       }
@@ -101,7 +144,7 @@ export const IssuesPage: React.FC = () => {
 
   useEffect(() => {
     fetchIssuesList();
-  }, [scope, category, severity, status, profile]);
+  }, [scope, category, severity, status, profile, authorityInfo]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,11 +174,42 @@ export const IssuesPage: React.FC = () => {
     }
   };
 
+  const getPageHeader = () => {
+    if (!profile || profile.role !== 'authority' || !authorityInfo) {
+      return {
+        title: "Civic Issues Directory",
+        subtitle: "Browse, verify, and track citizen reported issues."
+      };
+    }
+    const position = authorityInfo.position || 'Authority';
+    if (authorityInfo.jurisdiction_level === 'national') {
+      return {
+        title: "Issues Under Your National Jurisdiction",
+        subtitle: `Overseeing national civic reports as ${position}.`
+      };
+    }
+    if (authorityInfo.jurisdiction_level === 'state') {
+      const stateName = authorityInfo.states?.name || 'State';
+      return {
+        title: `Issues Under Your State Jurisdiction (${stateName})`,
+        subtitle: `Overseeing state-wide reports as ${position}.`
+      };
+    }
+    const cityName = authorityInfo.cities?.name || 'City';
+    const deptName = authorityInfo.departments?.name;
+    return {
+      title: `Issues Under Your Local Jurisdiction (${cityName}${deptName ? ` - ${deptName}` : ''})`,
+      subtitle: `Overseeing assigned local reports as ${position}.`
+    };
+  };
+
+  const header = getPageHeader();
+
   return (
     <div className="flex flex-col gap-6" style={{ textAlign: 'left' }}>
       <div>
-        <h2 style={{ fontSize: '1.75rem' }}>Civic Issues Directory</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Browse, verify, and track citizen reported issues.</p>
+        <h2 style={{ fontSize: '1.75rem' }}>{header.title}</h2>
+        <p style={{ color: 'var(--text-muted)' }}>{header.subtitle}</p>
       </div>
 
       {/* Scope and Search bar */}
@@ -155,22 +229,28 @@ export const IssuesPage: React.FC = () => {
         </form>
 
         <div className="flex flex-wrap gap-4 align-center justify-between border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-          <div className="tabs" style={{ border: 'none' }}>
-            <button
-              className={`tab-btn ${scope === 'city' ? 'active' : ''}`}
-              onClick={() => setScope('city')}
-              style={{ padding: '0.25rem 0.5rem' }}
-            >
-              My City
-            </button>
-            <button
-              className={`tab-btn ${scope === 'all' ? 'active' : ''}`}
-              onClick={() => setScope('all')}
-              style={{ padding: '0.25rem 0.5rem' }}
-            >
-              All Cities
-            </button>
-          </div>
+          {profile?.role !== 'authority' ? (
+            <div className="tabs" style={{ border: 'none' }}>
+              <button
+                className={`tab-btn ${scope === 'city' ? 'active' : ''}`}
+                onClick={() => setScope('city')}
+                style={{ padding: '0.25rem 0.5rem' }}
+              >
+                My City
+              </button>
+              <button
+                className={`tab-btn ${scope === 'all' ? 'active' : ''}`}
+                onClick={() => setScope('all')}
+                style={{ padding: '0.25rem 0.5rem' }}
+              >
+                All Cities
+              </button>
+            </div>
+          ) : (
+            <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              🔒 Scoped to your jurisdiction
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-3 align-center">
             <Select

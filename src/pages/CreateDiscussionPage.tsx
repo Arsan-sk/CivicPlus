@@ -11,14 +11,15 @@ import { ArrowLeft, UploadSimple } from '@phosphor-icons/react';
 
 interface CreateDiscussionPageProps {
   onBack?: () => void;
+  defaultType?: string;
 }
 
-export const CreateDiscussionPage: React.FC<CreateDiscussionPageProps> = ({ onBack }) => {
+export const CreateDiscussionPage: React.FC<CreateDiscussionPageProps> = ({ onBack, defaultType }) => {
   const { profile } = useAuthStore();
   const navigate = useNavigate();
 
   const [content, setContent] = useState('');
-  const [discussionType, setDiscussionType] = useState('general');
+  const [discussionType, setDiscussionType] = useState(defaultType || 'general');
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
@@ -128,7 +129,9 @@ export const CreateDiscussionPage: React.FC<CreateDiscussionPageProps> = ({ onBa
                 { value: 'complaint', label: 'General Complaint' },
                 { value: 'awareness', label: 'Community Awareness' },
                 { value: 'feedback', label: 'Department Feedback' },
-                { value: 'announcement', label: 'Official Announcement (Authorities Only)' }
+                ...(profile?.role === 'authority'
+                  ? [{ value: 'announcement', label: 'Official Announcement (Authorities Only)' }]
+                  : [])
               ]}
               value={discussionType}
               onChange={(e) => setDiscussionType(e.target.value)}

@@ -46,6 +46,7 @@ interface Discussion {
   support_count: number;
   comment_count: number;
   created_at: string;
+  discussion_type?: string;
   profiles: {
     full_name: string;
     username: string;
@@ -230,7 +231,7 @@ export const HomePage: React.FC = () => {
       let query = supabase
         .from('discussions')
         .select(`
-          id, content, support_count, comment_count, created_at,
+          id, content, support_count, comment_count, created_at, discussion_type,
           profiles (full_name, username, avatar_url)
         `)
         .order('created_at', { ascending: false });
@@ -651,12 +652,19 @@ export const HomePage: React.FC = () => {
                   <div className="flex align-center gap-3">
                     <Avatar name={post.profiles?.full_name || 'User'} src={post.profiles?.avatar_url} size={36} />
                     <div>
-                      <strong
-                        onClick={() => navigate(`/profile/${post.profiles?.username}`)}
-                        style={{ cursor: 'pointer', color: 'var(--text-heading)', fontSize: '0.875rem' }}
-                      >
-                        {post.profiles?.full_name || 'Citizen'}
-                      </strong>
+                      <div className="flex align-center gap-2">
+                        <strong
+                          onClick={() => navigate(`/profile/${post.profiles?.username}`)}
+                          style={{ cursor: 'pointer', color: 'var(--text-heading)', fontSize: '0.875rem' }}
+                        >
+                          {post.profiles?.full_name || 'Citizen'}
+                        </strong>
+                        {post.discussion_type && post.discussion_type !== 'general' && (
+                          <Badge variant={post.discussion_type === 'announcement' ? 'danger' : 'primary'} style={{ fontSize: '0.625rem', padding: '2px 6px' }}>
+                            {post.discussion_type === 'announcement' ? 'Official Announcement' : post.discussion_type}
+                          </Badge>
+                        )}
+                      </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         @{post.profiles?.username} · {formatTime(post.created_at)}
                       </div>

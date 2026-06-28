@@ -75,7 +75,7 @@ export const SearchPage: React.FC = () => {
       if (activeTab === 'all') {
         const [issuesRes, discussionsRes, citiesRes, usersRes] = await Promise.all([
           supabase.from('issue_reports').select('id, title, status, severity, created_at').or(`title.ilike.%${query.trim()}%,description.ilike.%${query.trim()}%`).limit(10),
-          supabase.from('discussions').select('id, content, created_at, profiles(full_name, username, avatar_url)').ilike('content', `%${query.trim()}%`).limit(10),
+          supabase.from('discussions').select('id, content, created_at, discussion_type, profiles(full_name, username, avatar_url)').ilike('content', `%${query.trim()}%`).limit(10),
           supabase.from('cities').select('id, name, slug, states(name)').ilike('name', `%${query.trim()}%`).limit(10),
           supabase.from('profiles').select('id, full_name, username, role, avatar_url, is_verified').or(`full_name.ilike.%${query.trim()}%,username.ilike.%${query.trim()}%`).limit(10)
         ]);
@@ -145,7 +145,7 @@ export const SearchPage: React.FC = () => {
       } else if (activeTab === 'discussions') {
         const { data } = await supabase
           .from('discussions')
-          .select('id, content, created_at, profiles(full_name, username, avatar_url)')
+          .select('id, content, created_at, discussion_type, profiles(full_name, username, avatar_url)')
           .ilike('content', `%${query.trim()}%`)
           .limit(10);
         setDiscussions(data as any[] || []);
@@ -330,7 +330,14 @@ export const SearchPage: React.FC = () => {
                       onClick={() => navigate(`/profile/${item.profiles?.username}`)}
                     >
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Discussion Post by @{item.profiles?.username}</div>
+                        <div className="flex align-center gap-2" style={{ marginBottom: '0.25rem' }}>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Discussion Post by @{item.profiles?.username}</span>
+                          {item.discussion_type && item.discussion_type !== 'general' && (
+                            <Badge variant={item.discussion_type === 'announcement' ? 'danger' : 'primary'} style={{ fontSize: '0.625rem', padding: '1px 4px' }}>
+                              {item.discussion_type === 'announcement' ? 'Announcement' : item.discussion_type}
+                            </Badge>
+                          )}
+                        </div>
                         <p style={{ color: 'var(--text-heading)', fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '450px', margin: 0 }}>
                           {item.content}
                         </p>
@@ -418,7 +425,14 @@ export const SearchPage: React.FC = () => {
                   onClick={() => navigate(`/profile/${disc.profiles?.username}`)}
                 >
                   <div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Posted by @{disc.profiles?.username}</div>
+                    <div className="flex align-center gap-2">
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Posted by @{disc.profiles?.username}</div>
+                      {disc.discussion_type && disc.discussion_type !== 'general' && (
+                        <Badge variant={disc.discussion_type === 'announcement' ? 'danger' : 'primary'} style={{ fontSize: '0.625rem', padding: '1px 4px' }}>
+                          {disc.discussion_type === 'announcement' ? 'Announcement' : disc.discussion_type}
+                        </Badge>
+                      )}
+                    </div>
                     <p style={{ color: 'var(--text-heading)', fontSize: '0.875rem', marginTop: '0.25rem' }}>{disc.content}</p>
                   </div>
                   <ChatTeardropText size={18} color="var(--primary)" />
