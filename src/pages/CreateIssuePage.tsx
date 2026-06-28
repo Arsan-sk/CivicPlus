@@ -127,7 +127,7 @@ const [aiSuggestions, setAiSuggestions] = useState<{
     }
   };
 
-  // Run Simulated AI Analysis
+
 // ── Keyword fallback (used if Gemini fails) ──────────────────────────────────
 const runKeywordFallback = (title: string, description: string) => {
   const text = `${title} ${description}`.toLowerCase();
@@ -171,15 +171,27 @@ const runAiAnalysis = async () => {
       {
         text: `You are a civic issue classification AI for an Indian municipal platform.
 
-Analyze this civic issue report and return ONLY a valid JSON object, no markdown, no explanation.
+Analyze this civic issue report and return ONLY a valid JSON object. Do not include markdown wraps, code block backticks (like \`\`\`json), or any explanation text.
 
 Issue Title: "${title}"
 Issue Description: "${description}"
 
-${image ? 'An image of the issue is also provided above.' : 'No image provided — classify from text only.'}
+${image ? 'An image of the issue is provided above. IMPORTANT: Prioritize the image content over the text title/description for determining the category and severity. If the image shows a pothole, select pothole. If it shows garbage, select garbage, even if the text description is vague.' : 'No image provided — classify from text only.'}
 
-Valid categories (use exact slug): pothole, garbage, water-leakage, broken-streetlight, drainage-problem, damaged-infrastructure, other
-Valid severity levels: low, medium, high, critical
+Choose from these valid categories (use exact slug):
+- pothole: Potholes, road cracks, broken asphalt.
+- garbage: Garbage piles, litter, solid waste dumps, overflowing trash bins.
+- water-leakage: Burst water mains, leaking pipes, overflowing clean water.
+- broken-streetlight: Non-functioning streetlights, broken poles, dark streets at night.
+- drainage-problem: Overflowing sewage, clogged gutters, open manholes.
+- damaged-infrastructure: Broken pavements/footpaths, damaged dividers, fallen road signs.
+- other: Any other general municipal issue.
+
+Choose from these valid severity levels:
+- low: Minor issue, no immediate hazard (e.g., small litter, single minor pothole on a quiet street).
+- medium: Moderate inconvenience or hazard (e.g., small garbage pile, single dark streetlight).
+- high: Major safety hazard or structural failure (e.g., large pothole on highway, burst water pipe flooding a street).
+- critical: Severe danger, immediate risk to life, or total blockage of vital roads (e.g., sewage flooding homes, major structural bridge collapse).
 
 Return this exact JSON structure:
 {
@@ -191,7 +203,7 @@ Return this exact JSON structure:
       }
     ];
 
-    // If image is available, convert to base64 and add as inline_data
+    // If image is available, convert to base64 and add as inlineData
     if (image) {
       const base64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -206,15 +218,15 @@ Return this exact JSON structure:
 
       // Insert image part BEFORE text part (Gemini reads image first)
       parts.unshift({
-        inline_data: {
-          mime_type: image.type || 'image/jpeg',
+        inlineData: {
+          mimeType: image.type || 'image/jpeg',
           data: base64,
         }
       });
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
