@@ -14,6 +14,7 @@ import {
   GithubLogo,
   LinkedinLogo,
   Globe,
+  InstagramLogo,
 } from '@phosphor-icons/react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -505,27 +506,11 @@ export const LandingPage: React.FC = () => {
           >
             Builder
           </strong>
-          <a
-            href="https://arsansk.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: '0.9rem',
-              fontWeight: 'bold',
-              color: 'var(--text-heading)',
-              textDecoration: 'none',
-              marginBottom: '0.75rem',
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
-            onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text-heading)')}
-          >
-            Shaikh Mohd Arsan
-          </a>
           
           {/* Social Icons Row */}
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             <a
-              href="https://github.com/Arsan-sk/"
+              href="https://github.com/Arsan-sk/CivicPlus"
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: 'var(--text-muted)', display: 'inline-flex' }}
@@ -543,6 +528,16 @@ export const LandingPage: React.FC = () => {
               onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
               <LinkedinLogo size={20} />
+            </a>
+            <a
+              href="https://www.instagram.com/tachyon_36/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--text-muted)', display: 'inline-flex' }}
+              onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+              onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
+            >
+              <InstagramLogo size={20} />
             </a>
             <a
               href="https://arsansk.vercel.app/"
@@ -570,7 +565,22 @@ export const LandingPage: React.FC = () => {
           color: 'var(--text-muted)',
         }}
       >
-        © 2026 CivicPlus. Built by Shaikh Mohd Arsan. All rights reserved.
+        © 2026 CivicPlus. Built by{' '}
+        <a
+          href="https://arsansk.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: 'var(--primary)',
+            textDecoration: 'underline',
+            fontWeight: 600,
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.color = 'var(--text-heading)')}
+          onMouseOut={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+        >
+          Shaikh Mohd Arsan
+        </a>
+        . All rights reserved.
       </div>
     </footer>
   </>
