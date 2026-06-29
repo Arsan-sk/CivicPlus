@@ -151,6 +151,22 @@ export const IssuesPage: React.FC = () => {
     fetchIssuesList();
   };
 
+  const formatStatus = (s: string) => {
+    const mapping: Record<string, string> = {
+      'submitted': 'Submitted',
+      'community_verification_pending': 'Pending Verification',
+      'community_verified': 'Community Verified',
+      'seen_by_authority': 'Seen by Authority',
+      'in_progress': 'In Progress',
+      'resolved': 'Resolved',
+      'resolved_by_authority': 'Resolved',
+      'awaiting_community_verification': 'Awaiting Verification',
+      'community_verified_resolution': 'Resolution Verified',
+      'closed': 'Closed',
+    };
+    return mapping[s] || s;
+  };
+
   const getSeverityVariant = (sev: string) => {
     switch (sev) {
       case 'low': return 'neutral';
@@ -331,7 +347,7 @@ export const IssuesPage: React.FC = () => {
               <div className="flex justify-between align-center border-t pt-2" style={{ borderColor: 'var(--border)' }}>
                 <div className="flex align-center gap-2">
                   <Badge variant={getStatusBadgeVariant(issue.status)}>
-                    {issue.status.replace(/_/g, ' ')}
+                    {formatStatus(issue.status)}
                   </Badge>
                   <Button
                     variant="secondary"

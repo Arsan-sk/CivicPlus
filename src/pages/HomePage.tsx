@@ -202,6 +202,7 @@ export const HomePage: React.FC = () => {
           issue_categories (name, color),
           issue_media (media_url)
         `)
+        .order('support_count', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (profile?.city_id) {
@@ -380,6 +381,22 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  const formatStatus = (s: string) => {
+    const mapping: Record<string, string> = {
+      'submitted': 'Submitted',
+      'community_verification_pending': 'Pending Verification',
+      'community_verified': 'Community Verified',
+      'seen_by_authority': 'Seen by Authority',
+      'in_progress': 'In Progress',
+      'resolved': 'Resolved',
+      'resolved_by_authority': 'Resolved',
+      'awaiting_community_verification': 'Awaiting Verification',
+      'community_verified_resolution': 'Resolution Verified',
+      'closed': 'Closed',
+    };
+    return mapping[s] || s;
+  };
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'submitted': return 'neutral';
@@ -407,13 +424,13 @@ export const HomePage: React.FC = () => {
             className={`tab-btn ${activeTab === 'issues' ? 'active' : ''}`}
             onClick={() => setActiveTab('issues')}
           >
-            Active Issues
+            Issues Feed ({issues.length})
           </button>
           <button
             className={`tab-btn ${activeTab === 'discussions' ? 'active' : ''}`}
             onClick={() => setActiveTab('discussions')}
           >
-            Civic Discussions
+            Community Talk ({discussions.length})
           </button>
         </div>
 
@@ -537,7 +554,7 @@ export const HomePage: React.FC = () => {
                       {issue.severity}
                     </Badge>
                     <Badge variant={getStatusBadgeVariant(issue.status)}>
-                      {issue.status.replace(/_/g, ' ')}
+                      {formatStatus(issue.status)}
                     </Badge>
                   </div>
                 </div>
