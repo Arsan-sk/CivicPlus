@@ -119,6 +119,7 @@ export const RegisterForm: React.FC = () => {
         email,
         password,
         options: {
+          emailRedirectTo: 'https://civicplus-app.web.app',
           data: {
             full_name: fullName,
             username: username.toLowerCase().trim(),

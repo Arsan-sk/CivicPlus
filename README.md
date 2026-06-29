@@ -1,8 +1,13 @@
-# 🏛️ CivicPulse – AI-Powered Hyperlocal Community Problem Solver
+# 🏛️ CivicPlus – AI-Powered Hyperlocal Community Problem Solver
 
 > **"Because local problems deserve immediate, collective action."**
 
-CivicPulse is a purpose-built civic action platform that bridges the gap between citizens and municipal authorities. Instead of traditional entertainment-focused social networks, CivicPulse is designed to transform hyperlocal reporting (potholes, garbage, leakages, streetlight issues) into a transparent, community-driven social movement.
+CivicPlus is a purpose-built civic action platform that bridges the gap between citizens and municipal authorities. Instead of traditional entertainment-focused social networks, CivicPlus is designed to transform hyperlocal reporting (potholes, garbage, leakages, streetlight issues) into a transparent, community-driven social movement.
+
+---
+
+## 🌐 Live Demo
+**[https://civicplus-app.web.app](https://civicplus-app.web.app)**
 
 ---
 
@@ -10,7 +15,7 @@ CivicPulse is a purpose-built civic action platform that bridges the gap between
 
 Community problems like water leakage, road craters, and dark streetlights are typically reported through fragmented channels, ending up ignored, duplicated, or lost in red tape. Citizens are left in the dark about progress, and authorities struggle to route requests to the correct departments.
 
-**CivicPulse solves this by combining:**
+**CivicPlus solves this by combining:**
 * 🗺️ **Interactive Geographic Mapping** (Visualizing issues in real-time)
 * 🧠 **AI Vision Assistance** (Instant categorization and severity detection)
 * 🔒 **Hierarchical Jurisdiction Boundaries** (Automatic scoped routing for authorities)

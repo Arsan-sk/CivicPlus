@@ -432,12 +432,30 @@ export const IssueDetailPage: React.FC = () => {
         </div>
 
         {/* Media elements */}
-        {issue.issue_media && issue.issue_media.length > 0 && (
+        {issue.issue_media && issue.issue_media.length > 0 && issue.issue_media[0].media_url ? (
           <img
             src={issue.issue_media[0].media_url}
             alt={issue.title}
             style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: 'var(--radius-md)', margin: '0.5rem 0' }}
           />
+        ) : (
+          <div
+            style={{
+              width: '100%',
+              height: '200px',
+              backgroundColor: 'var(--bg-offset)',
+              borderRadius: 'var(--radius-md)',
+              margin: '0.5rem 0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text-muted)',
+              fontSize: '0.875rem',
+              border: '1px dashed var(--border)',
+            }}
+          >
+            No image attached
+          </div>
         )}
 
         <div className="flex flex-col gap-3">

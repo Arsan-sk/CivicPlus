@@ -580,7 +580,7 @@ export const HomePage: React.FC = () => {
                   </p>
 
                   {/* Render preview image if uploaded */}
-                  {issue.issue_media && issue.issue_media.length > 0 && (
+                  {issue.issue_media && issue.issue_media.length > 0 && issue.issue_media[0].media_url ? (
                     <img
                       src={issue.issue_media[0].media_url}
                       alt="Issue media"
@@ -592,6 +592,24 @@ export const HomePage: React.FC = () => {
                         marginTop: '0.5rem',
                       }}
                     />
+                  ) : (
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '140px',
+                        backgroundColor: 'var(--bg-offset)',
+                        borderRadius: 'var(--radius-md)',
+                        marginTop: '0.5rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.8125rem',
+                        border: '1px dashed var(--border)',
+                      }}
+                    >
+                      No image attached
+                    </div>
                   )}
                 </div>
 

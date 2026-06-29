@@ -395,29 +395,13 @@ Return in this exact JSON structure as shown in below example:
     try {
       let publicImageUrl = '';
 
-      // Upload image to Storage if present
+      // If image exists, convert to base64 data URL for storage
       if (image) {
-        const fileExt = image.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `issues/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('issue-media')
-          .upload(filePath, image);
-
-        if (!uploadError) {
-          const { data } = supabase.storage.from('issue-media').getPublicUrl(filePath);
-          publicImageUrl = data.publicUrl;
-        } else {
-          // Fallback to stock unsplash image
-          const cat = categories.find((c) => c.id === selectedCategory);
-          publicImageUrl = `https://images.unsplash.com/photo-1599740831419-b5ce2d26f74a?w=800`; // general fallback
-          if (cat?.slug === 'pothole') {
-            publicImageUrl = 'https://images.unsplash.com/photo-1515162305285-0293e4767cc2?w=800';
-          } else if (cat?.slug === 'garbage') {
-            publicImageUrl = 'https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?w=800';
-          }
-        }
+        publicImageUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(image);
+        });
       }
 
       // Map to correct department based on category
