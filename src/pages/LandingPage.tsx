@@ -11,6 +11,10 @@ import {
   ChartLineUp,
   Buildings,
   ClockCountdown,
+  GithubLogo,
+  LinkedinLogo,
+  InstagramLogo,
+  User,
 } from '@phosphor-icons/react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -384,6 +388,7 @@ export const LandingPage: React.FC = () => {
           borderRadius: 'var(--radius-lg)',
           padding: '2.5rem',
           width: '100%',
+          marginTop: 50,
         }}
       >
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 align-center">
@@ -430,82 +435,124 @@ export const LandingPage: React.FC = () => {
     {/* 6. Landing Page Footer */}
     <footer
       style={{
-        backgroundColor: 'var(--bg-card)',
+        backgroundColor: 'var(--bg-offset)',
         borderTop: '1px solid var(--border)',
-        padding: '3rem 0',
+        padding: '3.5rem 0 2.5rem 0',
         width: '100%',
-        marginTop: '4rem',
+        marginTop: '5rem',
       }}
     >
-      <div className="container grid grid-cols-1 md:grid-cols-3 gap-8" style={{ textAlign: 'left' }}>
-        <div className="flex flex-col gap-3">
-          <strong style={{ fontSize: '1.25rem', color: 'var(--text-heading)' }}>CivicPlus</strong>
-          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: 0 }}>
-            AI-Powered Hyperlocal Civic Action Platform
-          </p>
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-            Built for Vibe2Ship Hackathon 2026 — Community Hero Track
-          </p>
+      <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12" style={{ textAlign: 'left' }}>
+          
+          {/* Logo & Description */}
+          <div className="flex flex-col gap-4">
+            <div className="flex align-center gap-3">
+              <div
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '1.125rem',
+                  fontWeight: 800,
+                }}
+              >
+                CP
+              </div>
+              <strong style={{ fontSize: '1.375rem', color: 'var(--text-heading)', fontWeight: 800 }}>CivicPlus</strong>
+            </div>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0, maxWidth: '320px' }}>
+              An AI-powered hyperlocal civic action platform designed to report municipal issues, track resolutions, and coordinate transparently with local authorities.
+            </p>
+          </div>
+
+          {/* Quick Links / Built With */}
+          <div className="flex flex-col gap-4">
+            <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+              Built With
+            </strong>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              <li>React & TypeScript</li>
+              <li>Supabase (Database & Auth)</li>
+              <li>Gemini 1.5 Flash (Vision AI)</li>
+              <li>Google Maps Platform API</li>
+              <li>Firebase App Hosting</li>
+            </ul>
+          </div>
+
+          {/* Contact & Socials */}
+          <div className="flex flex-col gap-4">
+            <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+              Contact / Builder
+            </strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.875rem' }}>
+              <div className="flex align-center gap-3">
+                <User size={18} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <a
+                  href="https://arsansk.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--text)', textDecoration: 'none' }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text)')}
+                >
+                  Shaikh Mohd Arsan
+                </a>
+              </div>
+              <div className="flex align-center gap-3">
+                <GithubLogo size={18} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <a
+                  href="https://github.com/Arsan-sk/CivicPlus"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--text)', textDecoration: 'none' }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text)')}
+                >
+                  github.com/Arsan-sk/CivicPlus
+                </a>
+              </div>
+              <div className="flex align-center gap-3">
+                <LinkedinLogo size={18} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <a
+                  href="https://www.linkedin.com/in/arsan-sk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--text)', textDecoration: 'none' }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text)')}
+                >
+                  linkedin.com/in/arsan-sk
+                </a>
+              </div>
+              <div className="flex align-center gap-3">
+                <InstagramLogo size={18} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <a
+                  href="https://www.instagram.com/tachyon_36/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--text)', textDecoration: 'none' }}
+                  onMouseOver={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+                  onMouseOut={(e) => (e.currentTarget.style.color = 'var(--text)')}
+                >
+                  instagram.com/tachyon_36
+                </a>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <div className="flex flex-col gap-3">
-          <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Built With
-          </strong>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-            <li>React + TypeScript</li>
-            <li>Supabase</li>
-            <li>Gemini 1.5 Flash Vision</li>
-            <li>Google Maps API</li>
-            <li>Firebase Hosting</li>
-          </ul>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Builder
-          </strong>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8125rem' }}>
-            <li>
-              <span style={{ color: 'var(--text-muted)' }}>Name: </span>
-              <a
-                href="https://arsansk.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
-              >
-                Shaikh Mohd Arsan
-              </a>
-            </li>
-            <li>
-              <span style={{ color: 'var(--text-muted)' }}>GitHub: </span>
-              <a
-                href="https://github.com/Arsan-sk/CivicPlus"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
-              >
-                github.com/Arsan-sk/CivicPlus
-              </a>
-            </li>
-            <li>
-              <span style={{ color: 'var(--text-muted)' }}>LinkedIn: </span>
-              <a
-                href="https://www.linkedin.com/in/arsan-sk/"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
-                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
-              >
-                linkedin.com/in/arsan-sk
-              </a>
-            </li>
-          </ul>
+        {/* Separator and Bottom Copyright Info */}
+        <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '2.5rem 0 1.5rem 0' }} />
+        <div style={{ textAlign: 'center', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+          <div>© 2026 CivicPlus. All rights reserved.</div>
+          <div style={{ marginTop: '0.25rem' }}>Built for Vibe2Ship Hackathon — Community Hero Track</div>
         </div>
       </div>
     </footer>
