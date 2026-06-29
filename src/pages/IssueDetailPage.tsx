@@ -264,6 +264,12 @@ export const IssueDetailPage: React.FC = () => {
 
   const handleConfirmation = async (type: 'existence' | 'resolution') => {
     if (!profile || !issue) return;
+    if (type === 'existence') {
+      if (issue.city_id !== profile.city_id) {
+        toast.error('Only citizens from this city can verify this issue.');
+        return;
+      }
+    }
     try {
       if (userConfirmations.includes(type)) {
         const { error } = await supabase

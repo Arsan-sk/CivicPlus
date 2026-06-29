@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   Robot,
   ChartLineUp,
+  Buildings,
+  ClockCountdown,
 } from '@phosphor-icons/react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -34,7 +36,8 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="container flex flex-col gap-16 py-12" style={{ minHeight: 'calc(100vh - 64px)' }}>
+    <>
+      <div className="container flex flex-col gap-16 py-12" style={{ minHeight: 'calc(100vh - 64px)' }}>
       {/* 1. Hero Section */}
       <section className="grid grid-cols-2 gap-8 align-center py-8">
         <div className="flex flex-col gap-6" style={{ textAlign: 'left' }}>
@@ -194,7 +197,7 @@ export const LandingPage: React.FC = () => {
       {/* 3. How It Works */}
       <section className="flex flex-col gap-8">
         <div style={{ textAlign: 'center', paddingTop: 30 }}>
-          <h2 >How CivicPulse Solves Issues</h2>
+          <h2 >How CivicPlus Solves Issues</h2>
           <p style={{ color: 'var(--text-muted)', maxWidth: '32rem', margin: '0.5rem auto 0' }}>
             A four-step collaborative flow designed to verify problems and track real outcomes.
           </p>
@@ -284,29 +287,59 @@ export const LandingPage: React.FC = () => {
 
       {/* 4. Features Showcase */}
       <section className="grid grid-cols-2 gap-8 align-center">
-        <div className="flex flex-col gap-4" style={{ textAlign: 'left', paddingTop: 50, paddingBottom: 100 }}>
+        <div className="flex flex-col gap-4" style={{ textAlign: 'left', paddingTop: 50 }}>
           <h2>Core Intelligent Automation</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-            CivicPulse bridges advanced technology and community participation to eliminate duplicate reporting and optimize civic routing.
+            CivicPlus bridges advanced technology and community participation to eliminate duplicate reporting and optimize civic routing.
           </p>
 
           <div className="flex flex-col gap-4 mt-2">
             <div className="flex gap-3 align-start">
-              <Robot size={24} color="var(--primary)" />
+              <Robot size={24} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
-                <strong>AI-Powered Categorization</strong>
+                <strong>AI-Powered Issue Categorization</strong>
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                  Vision models automatically analyze uploaded photos to identify infrastructure damage, water leaks, or garbage issues.
+                  Gemini Vision AI analyzes your photo and description together — detecting damage type, estimating severity from low to critical, and auto-classifying into the right civic category in under 3 seconds.
                 </p>
               </div>
             </div>
 
             <div className="flex gap-3 align-start">
-              <ChartLineUp size={24} color="var(--primary)" />
+              <ChartLineUp size={24} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
               <div>
                 <strong>Duplicate Issue Interception</strong>
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                  Coordinates lookup automatically scans nearby open issues to suggest supporting an existing report instead of creating a new duplicate.
+                  Before you submit, Google Maps proximity lookup scans open issues in your city's same category nearby. If a match exists, you're shown the existing ticket and offered to support it instead — keeping the board clean and priority scores accurate.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 align-start">
+              <Users size={24} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong>Community Verification Loop</strong>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  Only citizens from the same city can verify an issue exists. Once 10 local verifications are reached, the issue is officially escalated — crowdsourced accountability that filters noise and amplifies real problems.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 align-start">
+              <Buildings size={24} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong>Jurisdiction-Scoped Authority Routing</strong>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  Issues are automatically routed to the correct municipal department based on category. Authorities see only their city and department's queue — no cross-jurisdiction noise, no missed tickets.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 align-start">
+              <ClockCountdown size={24} color="var(--primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <strong>Public Resolution Timeline</strong>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                  Every status change — from submission to community verification to resolution — is logged publicly with timestamps and notes. No more black holes where reports disappear.
                 </p>
               </div>
             </div>
@@ -314,18 +347,169 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <Card className="glass" style={{ padding: '2rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Hackathon MVP Sandbox</h3>
+          <Card className="glass" style={{ padding: '2rem', textAlign: 'left' }}>
+            <h3 style={{ marginBottom: '0.25rem', fontWeight: 800 }}>What's Coming Next</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              Explore preloaded cities (Mumbai, Delhi, Bengaluru, Chennai, Hyderabad) and simulate workflows using demo citizen and authority accounts.
+              CivicPlus is just getting started. Here's what's on the roadmap.
             </p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 2rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {[
+                { title: 'Native Mobile Apps', desc: 'Report issues on-the-go from iOS and Android' },
+                { title: 'WhatsApp Integration', desc: 'Send a photo to a number, no app install needed' },
+                { title: 'Issue Heatmaps', desc: 'Visual geo-clustering of problem hotspots across cities' },
+                { title: 'Predictive Maintenance AI', desc: 'Forecast infrastructure failures before they happen' },
+                { title: 'Authority Accountability Scores', desc: 'Public ratings based on resolution speed and volume' },
+                { title: 'Geo-Fencing Alerts', desc: 'Get notified when a new issue appears within 1km of your location' }
+              ].map((item, idx) => (
+                <li key={idx} className="flex align-start gap-2" style={{ fontSize: '0.8125rem', lineHeight: 1.4 }}>
+                  <span style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '1rem', lineHeight: 1 }}>•</span>
+                  <span style={{ color: 'var(--text)' }}>
+                    <strong>{item.title}</strong> — {item.desc}
+                  </span>
+                </li>
+              ))}
+            </ul>
             <Button variant="primary" size="lg" onClick={handleStart} style={{ width: '100%' }}>
               Get Started Now
             </Button>
           </Card>
         </div>
       </section>
+
+      {/* 5. Hackathon MVP Sandbox Full-Width Section */}
+      <Card
+        style={{
+          background: 'linear-gradient(135deg, var(--primary-light), var(--bg-card))',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '2.5rem',
+          width: '100%',
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 align-center">
+          <div className="md:col-span-3 flex flex-col gap-3" style={{ textAlign: 'left' }}>
+            <div
+              className="badge badge-success"
+              style={{
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                alignSelf: 'start',
+                backgroundColor: 'var(--success-light)',
+                color: 'var(--success)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid hsla(var(--success-hue), 80%, 40%, 0.15)',
+              }}
+            >
+              Vibe2Ship Hackathon — Community Hero Track
+            </div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Hackathon MVP Sandbox</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.5 }}>
+              Explore 5 preloaded Indian cities — Mumbai, Delhi, Bengaluru, Chennai, Hyderabad — with demo issues, citizen accounts, and authority workflows. The full civic pipeline is live and testable right now.
+            </p>
+          </div>
+          
+          <div className="md:col-span-2 flex justify-around gap-4 align-center">
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ fontSize: '1.75rem', color: 'var(--primary)', fontWeight: 800 }}>5</h4>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>Cities Preloaded</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ fontSize: '1.75rem', color: 'var(--warning)', fontWeight: 800 }}>20+</h4>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>Demo Issues</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ fontSize: '1.75rem', color: 'var(--success)', fontWeight: 800 }}>Full</h4>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>Role Pipeline Live</p>
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
+
+    {/* 6. Landing Page Footer */}
+    <footer
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        borderTop: '1px solid var(--border)',
+        padding: '3rem 0',
+        width: '100%',
+        marginTop: '4rem',
+      }}
+    >
+      <div className="container grid grid-cols-1 md:grid-cols-3 gap-8" style={{ textAlign: 'left' }}>
+        <div className="flex flex-col gap-3">
+          <strong style={{ fontSize: '1.25rem', color: 'var(--text-heading)' }}>CivicPlus</strong>
+          <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: 0 }}>
+            AI-Powered Hyperlocal Civic Action Platform
+          </p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+            Built for Vibe2Ship Hackathon 2026 — Community Hero Track
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Built With
+          </strong>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+            <li>React + TypeScript</li>
+            <li>Supabase</li>
+            <li>Gemini 1.5 Flash Vision</li>
+            <li>Google Maps API</li>
+            <li>Firebase Hosting</li>
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <strong style={{ fontSize: '0.875rem', color: 'var(--text-heading)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Builder
+          </strong>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8125rem' }}>
+            <li>
+              <span style={{ color: 'var(--text-muted)' }}>Name: </span>
+              <a
+                href="https://arsansk.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
+                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+              >
+                Shaikh Mohd Arsan
+              </a>
+            </li>
+            <li>
+              <span style={{ color: 'var(--text-muted)' }}>GitHub: </span>
+              <a
+                href="https://github.com/Arsan-sk/CivicPlus"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
+                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+              >
+                github.com/Arsan-sk/CivicPlus
+              </a>
+            </li>
+            <li>
+              <span style={{ color: 'var(--text-muted)' }}>LinkedIn: </span>
+              <a
+                href="https://www.linkedin.com/in/arsan-sk/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
+                onMouseOver={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseOut={(e) => (e.currentTarget.style.textDecoration = 'none')}
+              >
+                linkedin.com/in/arsan-sk
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </>
   );
 };
 export default LandingPage;
