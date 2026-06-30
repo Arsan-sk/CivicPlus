@@ -180,7 +180,7 @@ export const ProfilePage: React.FC = () => {
             setIssues(issueList);
 
             const total = issueList.length;
-            const open = issueList.filter(x => x.status !== 'closed' && x.status !== 'community_verified_resolution').length;
+            const open = issueList.filter(x => x.status !== 'closed' && x.status !== 'community_verified_resolution' && x.status !== 'resolved_by_authority').length;
             const resolved = issueList.filter(x => x.status === 'closed' || x.status === 'community_verified_resolution' || x.status === 'resolved_by_authority').length;
             const critical = issueList.filter(x => x.severity === 'critical' || x.severity === 'high').length;
             const satisfaction = total > 0 ? Math.round((resolved / total) * 100) : 100;
