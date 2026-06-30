@@ -143,7 +143,7 @@ export const ProfilePage: React.FC = () => {
           const { data: authRecord } = await supabase
             .from('authorities')
             .select(`
-              id, position, jurisdiction_level, country_id, state_id, city_id,
+              id, position, jurisdiction_level, country_id, state_id, city_id, department_id,
               cities (name), states (name)
             `)
             .eq('profile_id', profileRow.id)
@@ -169,6 +169,10 @@ export const ProfilePage: React.FC = () => {
               if (cityIds.length > 0) {
                 issuesQuery = issuesQuery.in('city_id', cityIds);
               }
+            }
+
+            if (authRecord.department_id) {
+              issuesQuery = issuesQuery.eq('assigned_department_id', authRecord.department_id);
             }
 
             const { data: allJurisdictionIssues } = await issuesQuery;
