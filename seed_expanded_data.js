@@ -684,6 +684,76 @@ const authorities = [
     department_id: 'd0000000-0000-0000-0005-000000000005',
     bio: 'Executive Engineer, Storm Drains GHMC. Managing canal clearance and sewage controls.',
     avatar_url: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150'
+  },
+  {
+    id: 'df000000-0000-0000-0001-00000000002e',
+    auth_id: 'da000000-0000-0000-0001-00000000002e',
+    email: 'mayor@mcgm.gov.in',
+    name: 'Kishori Pednekar',
+    username: 'mayor_mumbai_pednekar',
+    position: 'Mayor',
+    jurisdiction_level: 'city',
+    state_id: MAHARASHTRA,
+    city_id: MUMBAI,
+    department_id: null,
+    bio: 'Mayor of Mumbai. Leading the civic governance and citizen representation.',
+    avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150'
+  },
+  {
+    id: 'df000000-0000-0000-0001-00000000002f',
+    auth_id: 'da000000-0000-0000-0001-00000000002f',
+    email: 'mayor@mcd.nic.in',
+    name: 'Shelly Oberoi',
+    username: 'mayor_delhi_oberoi',
+    position: 'Mayor',
+    jurisdiction_level: 'city',
+    state_id: DELHI_STATE,
+    city_id: DELHI_CITY,
+    department_id: null,
+    bio: 'Mayor of Delhi. Championing primary education and municipal health systems.',
+    avatar_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150'
+  },
+  {
+    id: 'df000000-0000-0000-0001-000000000030',
+    auth_id: 'da000000-0000-0000-0001-000000000030',
+    email: 'mayor@bbmp.gov.in',
+    name: 'Sampath Raj',
+    username: 'mayor_blr_sampath',
+    position: 'Mayor',
+    jurisdiction_level: 'city',
+    state_id: KARNATAKA,
+    city_id: BENGALURU,
+    department_id: null,
+    bio: 'Mayor of Bengaluru. Enhancing Silicon Valley waste management and public transit.',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
+  },
+  {
+    id: 'df000000-0000-0000-0001-000000000031',
+    auth_id: 'da000000-0000-0000-0001-000000000031',
+    email: 'mayor@chennaicorporation.gov.in',
+    name: 'R. Priya',
+    username: 'mayor_chennai_priya',
+    position: 'Mayor',
+    jurisdiction_level: 'city',
+    state_id: TAMIL_NADU,
+    city_id: CHENNAI,
+    department_id: null,
+    bio: 'Mayor of Chennai. Focused on modernizing corporation schools and urban healthcare.',
+    avatar_url: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150'
+  },
+  {
+    id: 'df000000-0000-0000-0001-000000000032',
+    auth_id: 'da000000-0000-0000-0001-000000000032',
+    email: 'mayor@ghmc.gov.in',
+    name: 'Gadwal Vijayalakshmi',
+    username: 'mayor_hyd_vijayalakshmi',
+    position: 'Mayor',
+    jurisdiction_level: 'city',
+    state_id: TELANGANA,
+    city_id: HYDERABAD,
+    department_id: null,
+    bio: 'Mayor of Hyderabad. Advocating for green urban corridors and smart policing.',
+    avatar_url: 'https://images.unsplash.com/photo-1594744803329-e58b31de215f?w=150'
   }
 ];
 

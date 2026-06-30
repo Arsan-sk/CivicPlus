@@ -242,8 +242,8 @@ export const CityPage: React.FC = () => {
   };
 
   // Map officials
-  const chiefMinister = officials.find(x => x.position === 'Chief Minister');
-  const mayor = officials.find(x => x.position === 'Mayor');
+  const chiefMinister = officials.find(x => x.position.toLowerCase() === 'chief minister');
+  const mayor = officials.find(x => x.position.toLowerCase() === 'mayor');
   const commissioner = officials.find(x => x.position.toLowerCase().includes('commissioner'));
   const wardOfficer = officials.find(x => x.position.toLowerCase().includes('ward'));
   const waterOfficer = officials.find(x => 
