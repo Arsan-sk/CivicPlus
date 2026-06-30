@@ -47,6 +47,62 @@ interface AuthorityOfficial {
   };
 }
 
+const STATE_EMBLEM_WIKI_TITLES: Record<string, string> = {
+  'Maharashtra': 'Emblem_of_Maharashtra',
+  'Karnataka': 'Emblem_of_Karnataka',
+  'Tamil Nadu': 'Emblem_of_Tamil_Nadu',
+  'Telangana': 'Emblem_of_Telangana',
+  'Delhi': 'National_Emblem_of_India'
+};
+
+const STATE_EMBLEM_FALLBACK_URLS: Record<string, string> = {
+  'Maharashtra': 'https://upload.wikimedia.org/wikipedia/commons/e/ea/Seal_of_Maharashtra.svg',
+  'Karnataka': 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Seal_of_Karnataka.svg',
+  'Tamil Nadu': 'https://upload.wikimedia.org/wikipedia/commons/c/ca/Emblem_of_Tamil_Nadu.svg',
+  'Telangana': 'https://upload.wikimedia.org/wikipedia/commons/2/2a/Emblem_of_Telangana.svg',
+  'Delhi': 'https://upload.wikimedia.org/wikipedia/commons/f/f6/Seal_of_the_National_Capital_Territory_of_Delhi.svg'
+};
+
+async function fetchStateEmblem(stateName: string): Promise<string | null> {
+  const normalizedState = stateName.trim();
+
+  // 1. Primary: Wikipedia REST Summary API
+  const wikiTitle = STATE_EMBLEM_WIKI_TITLES[normalizedState];
+  if (wikiTitle) {
+    try {
+      const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${wikiTitle}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.thumbnail?.source) {
+          return data.thumbnail.source;
+        }
+      }
+    } catch (e) {
+      console.warn(`Wikipedia REST API failed for ${normalizedState}:`, e);
+    }
+  }
+
+  // 2. Fallback 1: Wikimedia Commons search
+  try {
+    const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&generator=search&gsrsearch=State%20emblem%20of%20${encodeURIComponent(normalizedState)}&gsrlimit=1&iiprop=url&origin=*`;
+    const response = await fetch(searchUrl);
+    if (response.ok) {
+      const data = await response.json();
+      const pages = data.query?.pages;
+      if (pages) {
+        const firstPage = Object.values(pages)[0] as any;
+        const imgUrl = firstPage.imageinfo?.[0]?.url;
+        if (imgUrl) return imgUrl;
+      }
+    }
+  } catch (e) {
+    console.warn(`Wikimedia Commons search failed for ${normalizedState}:`, e);
+  }
+
+  // 3. Fallback 2: Static hardcoded URL
+  return STATE_EMBLEM_FALLBACK_URLS[normalizedState] || null;
+}
+
 export const CityPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -56,6 +112,35 @@ export const CityPage: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [officials, setOfficials] = useState<AuthorityOfficial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [emblemUrl, setEmblemUrl] = useState<string | null>(null);
+  const [emblemLoading, setEmblemLoading] = useState(true);
+
+  useEffect(() => {
+    if (!stats?.state_name) return;
+
+    let isMounted = true;
+    const loadEmblem = async () => {
+      setEmblemLoading(true);
+      try {
+        const url = await fetchStateEmblem(stats.state_name);
+        if (isMounted) {
+          setEmblemUrl(url);
+        }
+      } catch (err) {
+        console.error('Failed to load state emblem:', err);
+      } finally {
+        if (isMounted) {
+          setEmblemLoading(false);
+        }
+      }
+    };
+
+    loadEmblem();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [stats?.state_name]);
 
   useEffect(() => {
     const fetchCityData = async () => {
@@ -283,6 +368,21 @@ export const CityPage: React.FC = () => {
                 <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.5rem', lineHeight: 1.5 }}>
                   This city belongs to the state jurisdiction of {stats.state_name}. Direct appeals and policies are overseen by the state chief executive.
                 </p>
+              </div>
+
+              {/* State Emblem Space */}
+              <div style={{ zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '1rem 0', minHeight: '80px' }}>
+                {emblemUrl ? (
+                  <img 
+                    src={emblemUrl} 
+                    alt={`${stats.state_name} Emblem`} 
+                    style={{ width: '80px', height: '80px', objectFit: 'contain' }} 
+                  />
+                ) : emblemLoading ? (
+                  <div className="skeleton" style={{ width: '80px', height: '80px', borderRadius: '50%' }} />
+                ) : (
+                  <Buildings size={48} color="var(--text-muted)" style={{ opacity: 0.5 }} />
+                )}
               </div>
 
               <div style={{ zIndex: 1, marginTop: '1.5rem' }}>
