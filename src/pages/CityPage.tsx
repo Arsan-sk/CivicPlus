@@ -159,9 +159,16 @@ export const CityPage: React.FC = () => {
   // Map officials
   const chiefMinister = officials.find(x => x.position === 'Chief Minister');
   const mayor = officials.find(x => x.position === 'Mayor');
-  const commissioner = officials.find(x => x.position === 'Municipal Commissioner');
-  const wardOfficer = officials.find(x => x.position === 'Ward Officer');
-  const waterOfficer = officials.find(x => x.position === 'Department Officer' || x.position.includes('Water'));
+  const commissioner = officials.find(x => x.position.toLowerCase().includes('commissioner'));
+  const wardOfficer = officials.find(x => x.position.toLowerCase().includes('ward'));
+  const waterOfficer = officials.find(x => 
+    x.position === 'Department Officer' || 
+    x.position.toLowerCase().includes('water') || 
+    x.position.toLowerCase().includes('bwssb') || 
+    x.position.toLowerCase().includes('cmwssb') || 
+    x.position.toLowerCase().includes('hmwssb') || 
+    x.position.toLowerCase().includes('jal board')
+  );
 
   const renderOfficialCard = (roleLabel: string, official: AuthorityOfficial | undefined, placeholderName: string) => {
     const hasOfficial = !!official;

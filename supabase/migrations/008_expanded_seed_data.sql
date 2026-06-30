@@ -1,0 +1,310 @@
+-- =====================================================================
+-- 008_EXPANDED_SEED_DATA.SQL
+-- Expanded seed data migration for CivicPlus
+-- Adds 45 verified authority profiles (9 per city), 6 recent trending
+-- discussions (late June 2026), and 2 critical issue reports.
+-- Bypasses auth server state conflicts using clean conditional inserts
+-- and ON CONFLICT handling.
+-- =====================================================================
+
+-- 1. SEED AUTH USERS
+-- Bypasses GoTrue securely for raw SQL editor deployments.
+-- Passwords are set to 'password123'.
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, role, aud) VALUES
+  -- Mumbai Authorities (c0000000-0000-0000-0000-000000000001)
+  ('df000000-0000-0000-0001-000000000001', '00000000-0000-0000-0000-000000000000', 'commissioner@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Bhushan Gagrani", "username": "mc_bmc_gagrani"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000002', '00000000-0000-0000-0000-000000000000', 'ward.ke@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Manish Valanju", "username": "ward_k_east_manish"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000003', '00000000-0000-0000-0000-000000000000', 'ward.gs@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Santoshkumar Dhonde", "username": "ward_g_south_santosh"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000004', '00000000-0000-0000-0000-000000000000', 'ward.hw@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Vinayak Vispute", "username": "ward_h_west_vinayak"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000005', '00000000-0000-0000-0000-000000000000', 'ee.roads@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Abhijeet Pawar", "username": "bmc_roads_pawar"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000006', '00000000-0000-0000-0000-000000000000', 'ee.elec@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Sudhir Salve", "username": "bmc_elec_salve"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000007', '00000000-0000-0000-0000-000000000000', 'ee.water@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Ramesh Bamble", "username": "bmc_water_bamble"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000008', '00000000-0000-0000-0000-000000000000', 'ee.swm@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Kiran Dighavkar", "username": "bmc_swm_kiran"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000009', '00000000-0000-0000-0000-000000000000', 'ee.drainage@mcgm.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Vidyadhar Khandekar", "username": "bmc_drainage_khandekar"}', false, 'authenticated', 'authenticated'),
+
+  -- Delhi Authorities (c0000000-0000-0000-0000-000000000002)
+  ('df000000-0000-0000-0001-00000000000a', '00000000-0000-0000-0000-000000000000', 'commissioner@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Gyanesh Bharti", "username": "commissioner_mcd"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000000b', '00000000-0000-0000-0000-000000000000', 'ward.okhla@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Amit Kumar", "username": "ward_okhla_amit"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000000c', '00000000-0000-0000-0000-000000000000', 'ward.kb@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Sanjay Rawat", "username": "ward_kb_rawat"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000000d', '00000000-0000-0000-0000-000000000000', 'ward.rohini@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Rajesh Gehlot", "username": "ward_rohini_gehlot"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000000e', '00000000-0000-0000-0000-000000000000', 'ee.roads@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Vijay Singh", "username": "mcd_roads_singh"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000000f', '00000000-0000-0000-0000-000000000000', 'ee.elec@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "S. K. Dhattarwal", "username": "mcd_elec_skd"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000010', '00000000-0000-0000-0000-000000000000', 'ee.water@delhijalboard.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "P. K. Gupta", "username": "djb_water_gupta"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000011', '00000000-0000-0000-0000-000000000000', 'ee.swm@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Pradeep Khandelwal", "username": "mcd_swm_pradeep"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000012', '00000000-0000-0000-0000-000000000000', 'ee.drain@mcd.nic.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Anil Kumar", "username": "mcd_drain_anil"}', false, 'authenticated', 'authenticated'),
+
+  -- Bengaluru Authorities (c0000000-0000-0000-0000-000000000003)
+  ('df000000-0000-0000-0001-000000000013', '00000000-0000-0000-0000-000000000000', 'commissioner@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Tushar Giri Nath", "username": "commissioner_bbmp"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000014', '00000000-0000-0000-0000-000000000000', 'ac.bellandur@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Jagadeesh Kumar", "username": "ward_bellandur_jagadeesh"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000015', '00000000-0000-0000-0000-000000000000', 'ac.whitefield@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "K. Ramesh", "username": "ward_wf_ramesh"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000016', '00000000-0000-0000-0000-000000000000', 'ac.indiranagar@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "S. M. Prasad", "username": "ward_in_prasad"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000017', '00000000-0000-0000-0000-000000000000', 'ee.roads@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "B. S. Prahlad", "username": "bbmp_roads_prahlad"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000018', '00000000-0000-0000-0000-000000000000', 'ee.elec@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "G. H. Nagaraj", "username": "bbmp_elec_nagaraj"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000019', '00000000-0000-0000-0000-000000000000', 'ee.water@bwssb.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "V. Manohar", "username": "bwssb_water_manohar"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000001a', '00000000-0000-0000-0000-000000000000', 'ee.swm@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Sarfaraz Khan", "username": "bbmp_swm_sarfaraz"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000001b', '00000000-0000-0000-0000-000000000000', 'ee.storm@bbmp.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "K. V. Jagadeesh", "username": "bbmp_storm_jagadeesh"}', false, 'authenticated', 'authenticated'),
+
+  -- Chennai Authorities (c0000000-0000-0000-0000-000000000004)
+  ('df000000-0000-0000-0001-00000000001c', '00000000-0000-0000-0000-000000000000', 'commissioner@chennaicorporation.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "J. Radhakrishnan", "username": "commissioner_gcc"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000001d', '00000000-0000-0000-0000-000000000000', 'ward.chromepet@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "K. Balaji", "username": "ward_chrome_balaji"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000001e', '00000000-0000-0000-0000-000000000000', 'ward.mylapore@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "S. Ramanathan", "username": "ward_myla_ramanathan"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000001f', '00000000-0000-0000-0000-000000000000', 'ward.adyar@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "T. M. Suresh", "username": "ward_adyar_suresh"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000020', '00000000-0000-0000-0000-000000000000', 'ee.roads@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "M. Palanisamy", "username": "gcc_roads_palanisamy"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000021', '00000000-0000-0000-0000-000000000000', 'ee.elec@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "R. Srinivasan", "username": "gcc_elec_srinivasan"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000022', '00000000-0000-0000-0000-000000000000', 'ee.water@cmwssb.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "K. Ashok Kumar", "username": "cmwssb_water_ashok"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000023', '00000000-0000-0000-0000-000000000000', 'ee.swm@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "N. Mahesan", "username": "gcc_swm_mahesan"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000024', '00000000-0000-0000-0000-000000000000', 'ee.drain@gcc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "S. Rajendran", "username": "gcc_drain_rajendran"}', false, 'authenticated', 'authenticated'),
+
+  -- Hyderabad Authorities (c0000000-0000-0000-0000-000000000005)
+  ('df000000-0000-0000-0001-000000000025', '00000000-0000-0000-0000-000000000000', 'commissioner@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "Ronald Rose", "username": "commissioner_ghmc"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000026', '00000000-0000-0000-0000-000000000000', 'ward.jh@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "M. Rajendra Prasad", "username": "ward_jh_rajendra"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000027', '00000000-0000-0000-0000-000000000000', 'ward.gachibowli@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "P. Venkata Ramana", "username": "ward_gachibowli_ramana"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000028', '00000000-0000-0000-0000-000000000000', 'ward.secunderabad@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "D. Srinivas Reddy", "username": "ward_sec_srinivas"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-000000000029', '00000000-0000-0000-0000-000000000000', 'ee.roads@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "L. Vasantha", "username": "ghmc_roads_vasantha"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000002a', '00000000-0000-0000-0000-000000000000', 'ee.elec@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "K. Srinivas", "username": "ghmc_elec_srinivas"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000002b', '00000000-0000-0000-0000-000000000000', 'ee.water@hmwssb.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "M. Krishna", "username": "hmwssb_water_krishna"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000002c', '00000000-0000-0000-0000-000000000000', 'ee.swm@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "V. Damodar", "username": "ghmc_swm_damodar"}', false, 'authenticated', 'authenticated'),
+  ('df000000-0000-0000-0001-00000000002d', '00000000-0000-0000-0000-000000000000', 'ee.drain@ghmc.gov.in', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider": "email", "providers": ["email"]}', '{"full_name": "B. Harilal", "username": "ghmc_drain_harilal"}', false, 'authenticated', 'authenticated')
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. UPDATE/UPSERT DETAILED PROFILES
+-- Sets verification status, city/state mappings, role to authority, and custom bios.
+-- Note: Trigger handle_new_user executes on auth.users insert, auto-creating a stub profile.
+-- An upsert with UPDATE SET is used to update those stub profiles with full metadata safely.
+INSERT INTO public.profiles (id, full_name, username, email, role, is_verified, country_id, state_id, city_id, bio, avatar_url) VALUES
+  -- Mumbai Profiles
+  ('df000000-0000-0000-0001-000000000001', 'Bhushan Gagrani', 'mc_bmc_gagrani', 'commissioner@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Municipal Commissioner, BMC. Managing city planning and public administration in Mumbai.', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150'),
+  ('df000000-0000-0000-0001-000000000002', 'Manish Valanju', 'ward_k_east_manish', 'ward.ke@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Ward Officer, Ward 24 - K East. Managing localized grievances, waste disposal, and ward safety.', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
+  ('df000000-0000-0000-0001-000000000003', 'Santoshkumar Dhonde', 'ward_g_south_santosh', 'ward.gs@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Ward Officer, Ward 12 - G South. Championing storm water drain upgrades and clean streets.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
+  ('df000000-0000-0000-0001-000000000004', 'Vinayak Vispute', 'ward_h_west_vinayak', 'ward.hw@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Ward Officer, Ward 8 - H West. Focused on citizen infrastructure transparency and urban greening.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
+  ('df000000-0000-0000-0001-000000000005', 'Abhijeet Pawar', 'bmc_roads_pawar', 'ee.roads@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Executive Engineer, BMC Road Department. Coordinating pothole filling and bridge repairs.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'),
+  ('df000000-0000-0000-0001-000000000006', 'Sudhir Salve', 'bmc_elec_salve', 'ee.elec@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Executive Engineer, BMC Electricity. Restoring damaged streetlights and electrical lines.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-000000000007', 'Ramesh Bamble', 'bmc_water_bamble', 'ee.water@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Executive Engineer, Water Supply Department. Rectifying leaks and managing pipeline pressure.', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150'),
+  ('df000000-0000-0000-0001-000000000008', 'Kiran Dighavkar', 'bmc_swm_kiran', 'ee.swm@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Executive Engineer, Solid Waste Management. Leading garbage sorting and clean ward drives.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150'),
+  ('df000000-0000-0000-0001-000000000009', 'Vidyadhar Khandekar', 'bmc_drainage_khandekar', 'ee.drainage@mcgm.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'Executive Engineer, BMC Storm Water Drains. Managing culvert decluttering and flood barriers.', 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150'),
+
+  -- Delhi Profiles
+  ('df000000-0000-0000-0001-00000000000a', 'Gyanesh Bharti', 'commissioner_mcd', 'commissioner@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Municipal Commissioner, MCD. Promoting tech integration in civic governance.', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150'),
+  ('df000000-0000-0000-0001-00000000000b', 'Amit Kumar', 'ward_okhla_amit', 'ward.okhla@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Ward Officer, Okhla Zone. Resolving local congestion and garbage problems.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-00000000000c', 'Sanjay Rawat', 'ward_kb_rawat', 'ward.kb@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Ward Officer, Karol Bagh Zone. Enhancing water distribution grids and local security.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
+  ('df000000-0000-0000-0001-00000000000d', 'Rajesh Gehlot', 'ward_rohini_gehlot', 'ward.rohini@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Ward Officer, Rohini Zone. Committed to smart city streetlighting and park upkeep.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
+  ('df000000-0000-0000-0001-00000000000e', 'Vijay Singh', 'mcd_roads_singh', 'ee.roads@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Executive Engineer, PWD Roads. Overseeing main arterial road reconstructions.', 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=150'),
+  ('df000000-0000-0000-0001-00000000000f', 'S. K. Dhattarwal', 'mcd_elec_skd', 'ee.elec@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Executive Engineer, MCD Streetlights. Implementing LED streetlight conversions.', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150'),
+  ('df000000-0000-0000-0001-000000000010', 'P. K. Gupta', 'djb_water_gupta', 'ee.water@delhijalboard.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Chief Engineer, Delhi Jal Board. Overseeing sewage plants and fresh water pipelines.', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150'),
+  ('df000000-0000-0000-0001-000000000011', 'Pradeep Khandelwal', 'mcd_swm_pradeep', 'ee.swm@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Chief Engineer, Waste Management MCD. Driving landfill cleanups and recycling hubs.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150'),
+  ('df000000-0000-0000-0001-000000000012', 'Anil Kumar', 'mcd_drain_anil', 'ee.drain@mcd.nic.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'Executive Engineer, Storm Water Drains MCD. Clearing blockages in Delhi drainage grids.', 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150'),
+
+  -- Bengaluru Profiles
+  ('df000000-0000-0000-0001-000000000013', 'Tushar Giri Nath', 'commissioner_bbmp', 'commissioner@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Chief Commissioner, BBMP. Dedicated to Silicon Valley infrastructure restoration.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'),
+  ('df000000-0000-0000-0001-000000000014', 'Jagadeesh Kumar', 'ward_bellandur_jagadeesh', 'ac.bellandur@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Ward Officer, Bellandur Ward 150. Dealing with local traffic bottle-necks and lake safety.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-000000000015', 'K. Ramesh', 'ward_wf_ramesh', 'ac.whitefield@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Ward Officer, Whitefield Ward 84. Spearheading tech park logistics and water supply.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
+  ('df000000-0000-0000-0001-000000000016', 'S. M. Prasad', 'ward_in_prasad', 'ac.indiranagar@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Ward Officer, Indiranagar Ward 80. Preserving green reserves and clearing pedestrian pathways.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
+  ('df000000-0000-0000-0001-000000000017', 'B. S. Prahlad', 'bbmp_roads_prahlad', 'ee.roads@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Chief Engineer, BBMP Roads & Infrastructure. Fixing potholes and installing pedestrian grids.', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150'),
+  ('df000000-0000-0000-0001-000000000018', 'G. H. Nagaraj', 'bbmp_elec_nagaraj', 'ee.elec@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Executive Engineer, BBMP Electrical. Handling streetlighting failures and overhead wires.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150'),
+  ('df000000-0000-0000-0001-000000000019', 'V. Manohar', 'bwssb_water_manohar', 'ee.water@bwssb.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Executive Engineer, BWSSB. Streamlining drinking water supply pipelines.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-00000000001a', 'Sarfaraz Khan', 'bbmp_swm_sarfaraz', 'ee.swm@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Joint Commissioner, Solid Waste BBMP. Expanding compost programs and landfill controls.', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150'),
+  ('df000000-0000-0000-0001-00000000001b', 'K. V. Jagadeesh', 'bbmp_storm_jagadeesh', 'ee.storm@bbmp.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'Executive Engineer, Storm Water Drains BBMP. Overseeing rajakaaluve lake channels.', 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150'),
+
+  -- Chennai Profiles
+  ('df000000-0000-0000-0001-00000000001c', 'J. Radhakrishnan', 'commissioner_gcc', 'commissioner@chennaicorporation.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Commissioner, Greater Chennai Corporation. Building coastal and stormwater resilience.', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150'),
+  ('df000000-0000-0000-0001-00000000001d', 'K. Balaji', 'ward_chrome_balaji', 'ward.chromepet@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Ward Officer, Chromepet Zone. Tracking electricity outages and regional storm networks.', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
+  ('df000000-0000-0000-0001-00000000001e', 'S. Ramanathan', 'ward_myla_ramanathan', 'ward.mylapore@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Ward Officer, Mylapore Zone. Preserving local historic public property and road safety.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
+  ('df000000-0000-0000-0001-00000000001f', 'T. M. Suresh', 'ward_adyar_suresh', 'ward.adyar@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Ward Officer, Adyar Zone. Improving garbage separation systems and local parks.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
+  ('df000000-0000-0000-0001-000000000020', 'M. Palanisamy', 'gcc_roads_palanisamy', 'ee.roads@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Executive Engineer, GCC Roads. Upgrading pedestrian tracks and resurfacing tar roads.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'),
+  ('df000000-0000-0000-0001-000000000021', 'R. Srinivasan', 'gcc_elec_srinivasan', 'ee.elec@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Superintending Engineer, GCC Electricals. Stabilizing power supply grids during storms.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-000000000022', 'K. Ashok Kumar', 'cmwssb_water_ashok', 'ee.water@cmwssb.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Area Engineer, Chennai Metro Water. Mitigating tank storage declines and water scarcity.', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150'),
+  ('df000000-0000-0000-0001-000000000023', 'N. Mahesan', 'gcc_swm_mahesan', 'ee.swm@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Chief Engineer, GCC Waste Management. Overlooking waste audits and landfill control.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150'),
+  ('df000000-0000-0000-0001-000000000024', 'S. Rajendran', 'gcc_drain_rajendran', 'ee.drain@gcc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'Executive Engineer, Storm Water GCC. Maintaining bay outlet gates and drainage pipes.', 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150'),
+
+  -- Hyderabad Profiles
+  ('df000000-0000-0000-0001-000000000025', 'Ronald Rose', 'commissioner_ghmc', 'commissioner@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Commissioner, GHMC. Enhancing smart sanitation and traffic grid systems.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'),
+  ('df000000-0000-0000-0001-000000000026', 'M. Rajendra Prasad', 'ward_jh_rajendra', 'ward.jh@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Ward Officer, Jubilee Hills Zone. Resolving local lane blocks and garbage complaints.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-000000000027', 'P. Venkata Ramana', 'ward_gachibowli_ramana', 'ward.gachibowli@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Ward Officer, Gachibowli Zone. Directing park cleanliness and local street projects.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
+  ('df000000-0000-0000-0001-000000000028', 'D. Srinivas Reddy', 'ward_sec_srinivas', 'ward.secunderabad@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Ward Officer, Secunderabad Zone. Improving local roads and pipeline problems.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
+  ('df000000-0000-0000-0001-000000000029', 'L. Vasantha', 'ghmc_roads_vasantha', 'ee.roads@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Superintending Engineer, GHMC Projects. Fixing potholes and installing road markings.', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150'),
+  ('df000000-0000-0000-0001-00000000002a', 'K. Srinivas', 'ghmc_elec_srinivas', 'ee.elec@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Executive Engineer, GHMC Streetlights. Handling streetlight breakdowns and cables.', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150'),
+  ('df000000-0000-0000-0001-00000000002b', 'M. Krishna', 'hmwssb_water_krishna', 'ee.water@hmwssb.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'General Manager, HMWSSB Operations. Directing main water filtration and leakage grids.', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'),
+  ('df000000-0000-0000-0001-00000000002c', 'V. Damodar', 'ghmc_swm_damodar', 'ee.swm@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Joint Commissioner, Sanitation GHMC. Organizing garbage segregation and dumping bins.', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150'),
+  ('df000000-0000-0000-0001-00000000002d', 'B. Harilal', 'ghmc_drain_harilal', 'ee.drain@ghmc.gov.in', 'authority', true, 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'Executive Engineer, Storm Drains GHMC. Managing canal clearance and sewage controls.', 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150')
+ON CONFLICT (id) DO UPDATE SET
+  role = EXCLUDED.role,
+  is_verified = EXCLUDED.is_verified,
+  country_id = EXCLUDED.country_id,
+  state_id = EXCLUDED.state_id,
+  city_id = EXCLUDED.city_id,
+  bio = EXCLUDED.bio,
+  avatar_url = EXCLUDED.avatar_url,
+  updated_at = now();
+
+-- 3. SEED AUTHORITIES ENTRIES
+-- Connects the profiles to their actual designations, city/state contexts, and departments.
+INSERT INTO public.authorities (id, profile_id, position, jurisdiction_level, country_id, state_id, city_id, department_id, badge_type, is_verified, verified_at) VALUES
+  -- Mumbai Authorities (c0000000-0000-0000-0000-000000000001)
+  ('da000000-0000-0000-0001-000000000001', 'df000000-0000-0000-0001-000000000001', 'Municipal Commissioner, BMC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000002', 'df000000-0000-0000-0001-000000000002', 'Ward Officer, Ward 24 - K East', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000003', 'df000000-0000-0000-0001-000000000003', 'Ward Officer, Ward 12 - G South', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000004', 'df000000-0000-0000-0001-000000000004', 'Ward Officer, Ward 8 - H West', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000005', 'df000000-0000-0000-0001-000000000005', 'Executive Engineer, Road Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0001-000000000001', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000006', 'df000000-0000-0000-0001-000000000006', 'Executive Engineer, Electricity Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0001-000000000002', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000007', 'df000000-0000-0000-0001-000000000007', 'Executive Engineer, Water Supply Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0001-000000000003', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000008', 'df000000-0000-0000-0001-000000000008', 'Executive Engineer, Waste Management Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0001-000000000004', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000009', 'df000000-0000-0000-0001-000000000009', 'Executive Engineer, Drainage Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'd0000000-0000-0000-0001-000000000005', 'official', true, now()),
+
+  -- Delhi Authorities (c0000000-0000-0000-0000-000000000002)
+  ('da000000-0000-0000-0001-00000000000a', 'df000000-0000-0000-0001-00000000000a', 'Municipal Commissioner, MCD', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000000b', 'df000000-0000-0000-0001-00000000000b', 'Ward Officer, Okhla Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000000c', 'df000000-0000-0000-0001-00000000000c', 'Ward Officer, Karol Bagh Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000000d', 'df000000-0000-0000-0001-00000000000d', 'Ward Officer, Rohini Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000000e', 'df000000-0000-0000-0001-00000000000e', 'Executive Engineer, PWD Roads', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0002-000000000001', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000000f', 'df000000-0000-0000-0001-00000000000f', 'Executive Engineer, MCD Streetlights', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0002-000000000002', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000010', 'df000000-0000-0000-0001-000000000010', 'Chief Engineer, Delhi Jal Board', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0002-000000000003', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000011', 'df000000-0000-0000-0001-000000000011', 'Chief Engineer, Waste Management MCD', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0002-000000000004', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000012', 'df000000-0000-0000-0001-000000000012', 'Executive Engineer, Storm Water Drains MCD', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000002', 'd0000000-0000-0000-0002-000000000005', 'official', true, now()),
+
+  -- Bengaluru Authorities (c0000000-0000-0000-0000-000000000003)
+  ('da000000-0000-0000-0001-000000000013', 'df000000-0000-0000-0001-000000000013', 'Chief Commissioner, BBMP', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000014', 'df000000-0000-0000-0001-000000000014', 'Ward Officer, Bellandur Ward 150', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000015', 'df000000-0000-0000-0001-000000000015', 'Ward Officer, Whitefield Ward 84', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000016', 'df000000-0000-0000-0001-000000000016', 'Ward Officer, Indiranagar Ward 80', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000017', 'df000000-0000-0000-0001-000000000017', 'Chief Engineer, BBMP Roads & Infrastructure', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0003-000000000001', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000018', 'df000000-0000-0000-0001-000000000018', 'Executive Engineer, BBMP Electrical Dept', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0003-000000000002', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000019', 'df000000-0000-0000-0001-000000000019', 'Executive Engineer, BWSSB Water Supply', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0003-000000000003', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000001a', 'df000000-0000-0000-0001-00000000001a', 'Joint Commissioner, Solid Waste Management BBMP', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0003-000000000004', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000001b', 'df000000-0000-0000-0001-00000000001b', 'Executive Engineer, Storm Water Drains BBMP', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000003', 'c0000000-0000-0000-0000-000000000003', 'd0000000-0000-0000-0003-000000000005', 'official', true, now()),
+
+  -- Chennai Authorities (c0000000-0000-0000-0000-000000000004)
+  ('da000000-0000-0000-0001-00000000001c', 'df000000-0000-0000-0001-00000000001c', 'Commissioner, Greater Chennai Corporation', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000001d', 'df000000-0000-0000-0001-00000000001d', 'Ward Officer, Chromepet Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000001e', 'df000000-0000-0000-0001-00000000001e', 'Ward Officer, Mylapore Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000001f', 'df000000-0000-0000-0001-00000000001f', 'Ward Officer, Adyar Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000020', 'df000000-0000-0000-0001-000000000020', 'Executive Engineer, GCC Roads Department', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0004-000000000001', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000021', 'df000000-0000-0000-0001-000000000021', 'Superintending Engineer, GCC Electricals', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0004-000000000002', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000022', 'df000000-0000-0000-0001-000000000022', 'Area Engineer, Chennai Metro Water (CMWSSB)', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0004-000000000003', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000023', 'df000000-0000-0000-0001-000000000023', 'Chief Engineer, Solid Waste Management GCC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0004-000000000004', 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000024', 'df000000-0000-0000-0001-000000000024', 'Executive Engineer, Storm Water Drains GCC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000004', 'c0000000-0000-0000-0000-000000000004', 'd0000000-0000-0000-0004-000000000005', 'official', true, now()),
+
+  -- Hyderabad Authorities (c0000000-0000-0000-0000-000000000005)
+  ('da000000-0000-0000-0001-000000000025', 'df000000-0000-0000-0001-000000000025', 'Commissioner, GHMC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000026', 'df000000-0000-0000-0001-000000000026', 'Ward Officer, Jubilee Hills Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000027', 'df000000-0000-0000-0001-000000000027', 'Ward Officer, Gachibowli Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000028', 'df000000-0000-0000-0001-000000000028', 'Ward Officer, Secunderabad Zone', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', NULL, 'official', true, now()),
+  ('da000000-0000-0000-0001-000000000029', 'df000000-0000-0000-0001-000000000029', 'Superintending Engineer, GHMC Projects (Roads)', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0005-000000000001', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000002a', 'df000000-0000-0000-0001-00000000002a', 'Executive Engineer, GHMC Streetlights', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0005-000000000002', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000002b', 'df000000-0000-0000-0001-00000000002b', 'General Manager, HMWSSB Operations', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0005-000000000003', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000002c', 'df000000-0000-0000-0001-00000000002c', 'Joint Commissioner, Sanitation GHMC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0005-000000000004', 'official', true, now()),
+  ('da000000-0000-0000-0001-00000000002d', 'df000000-0000-0000-0001-00000000002d', 'Executive Engineer, Storm Water Drains GHMC', 'city', 'a0000000-0000-0000-0000-000000000001', 'b0000000-0000-0000-0000-000000000005', 'c0000000-0000-0000-0000-000000000005', 'd0000000-0000-0000-0005-000000000005', 'official', true, now())
+ON CONFLICT (id) DO NOTHING;
+
+-- 4. SEED TRENDING CIVIC DISCUSSIONS (late June 2026)
+-- Adds 6 realistic citizen posts on local/national issues.
+INSERT INTO public.discussions (id, author_id, content, discussion_type, city_id, created_at, updated_at) VALUES
+  -- Delhi (c0000000-0000-0000-0000-000000000002)
+  ('d1500000-0000-0000-0001-000000000001', 'f0000000-0000-0000-0002-000000000004', 'NEET-UG 2026 Paper Leak Fallout: Students Protesting Outside NTA Office, Okhla
+
+The recent decision to cancel the exam and the subsequent CBI probe has left lakhs of students in absolute despair. We have been protesting outside the NTA office here in Okhla. The level of frustration with the National Testing Agency is at an all-time high. When will we see actual accountability in our national entrance examination system? We cannot let the hard work of millions of students be ruined by leaks and systemic corruption. #NEET2026 #PaperLeak #Protest #NTAAccountability', 'opinion', 'c0000000-0000-0000-0000-000000000002', '2026-06-22 10:00:00+05:30', '2026-06-22 10:00:00+05:30'),
+  
+  ('d1500000-0000-0000-0001-000000000002', 'f0000000-0000-0000-0002-000000000006', 'Mass protest march to Lok Bhavan over exam system accountability.
+
+Just witnessed heavy police deployment and barricades being set up near Lok Bhavan as hundreds of students and citizens started marching to demand reform in the national testing system. The atmosphere is tense but peaceful so far. If you are commuting through this area, expect major traffic diversions. We need our voices heard, but please stay safe, everyone! #DelhiProtest #LokBhavan #CitizenEyewitness #ExamReform', 'awareness', 'c0000000-0000-0000-0000-000000000002', '2026-06-24 11:30:00+05:30', '2026-06-24 11:30:00+05:30'),
+
+  -- Mumbai (c0000000-0000-0000-0000-000000000001)
+  ('d1500000-0000-0000-0001-000000000003', 'f0000000-0000-0000-0001-000000000004', 'Mumbai''s pre-monsoon prep failed again — BMC official falls into the same potholes citizens have been reporting for years.
+
+The ultimate irony of Mumbai''s monsoon: an inspecting BMC official falls into the very drainage manhole/potholes we have been raising alerts about! While it''s unfortunate, maybe now the municipal administration will realize the daily risks citizens take. Let''s make this a constructive push for reform: can we mandate geotagged open-drain tracking across all wards? We pay our taxes; the bare minimum we deserve is safe roads. #MumbaiMonsoon #BMCFailed #CivicAccountability #RoadSafety', 'opinion', 'c0000000-0000-0000-0000-000000000001', '2026-06-25 18:20:00+05:30', '2026-06-25 18:20:00+05:30'),
+
+  -- Bengaluru (c0000000-0000-0000-0000-000000000003)
+  ('d1500000-0000-0000-0001-000000000004', 'f0000000-0000-0000-0003-000000000004', 'Freedom Park rally on education accountability — what does this mean for local civic infrastructure spending?
+
+We saw a massive turnout at Freedom Park today protesting the national exam discrepancies. The energy is inspiring, but it also raises a broader point: if we can gather for national issues, we must demand the same transparency and accountability in local civic spending. Bengaluru''s infrastructure budget needs to be publicly audited. When tax funds are diverted or mismanaged, our roads, schools, and lakes suffer. Hyperlocal transparency is the foundation of national accountability. #Bengaluru #FreedomPark #CivicInfrastructure #BudgetTransparency', 'opinion', 'c0000000-0000-0000-0000-000000000003', '2026-06-27 10:10:00+05:30', '2026-06-27 10:10:00+05:30'),
+
+  -- Chennai (c0000000-0000-0000-0000-000000000004)
+  ('d1500000-0000-0000-0001-000000000005', 'f0000000-0000-0000-0004-000000000004', 'Scheduled power outages across Chromepet, Pallavaram, Sembium — anyone else affected?
+
+TANGEDCO has announced load shedding and scheduled outages lasting up to 5 hours in Chromepet, Pallavaram, and Sembium. During this intense heatwave, sitting without electricity is absolute torture. The local substation says it''s due to transformer maintenance, but we experience this every summer. Is anyone else facing constant trips or low voltage in these areas? Let''s compile a list of affected streets to escalate to the division engineer. #ChennaiPowerCut #Chromepet #Heatwave #TANGEDCO', 'awareness', 'c0000000-0000-0000-0000-000000000004', '2026-06-28 14:20:00+05:30', '2026-06-28 14:20:00+05:30'),
+
+  -- Hyderabad (c0000000-0000-0000-0000-000000000005)
+  ('d1500000-0000-0000-0001-000000000006', 'f0000000-0000-0000-0005-000000000005', 'Why hyperlocal platforms like this matter — accountability shouldn''t only trend during election season.
+
+It''s easy to post grievances and debate when elections are around the corner, but real democracy works when citizens monitor ward activities daily. Hyperlocal platforms like CivicPulse allow us to keep tabs on local streetlights, garbage collection, and water pipelines when nobody else is looking. Let us keep the engagement active, support each other''s reports, and hold our respective ward officers accountable all year round. Real change begins at our doorstep. #CivicEngagement #Hyperlocal #Hyderabad #CitizenPower', 'opinion', 'c0000000-0000-0000-0000-000000000005', '2026-06-29 17:00:00+05:30', '2026-06-29 17:00:00+05:30')
+ON CONFLICT (id) DO NOTHING;
+
+-- 5. SEED CRITICAL ISSUE REPORTS (late June 2026)
+-- Adds two core issue reports for Mumbai waterlogging and Chennai water scarcity.
+INSERT INTO public.issue_reports (id, author_id, title, description, category_id, severity, status, city_id, latitude, longitude, address, ward, created_at, updated_at) VALUES
+  -- Mumbai Issue (c0000000-0000-0000-0000-000000000001)
+  ('15500000-0000-0000-0001-000000000001', 'f0000000-0000-0000-0001-000000000003', 
+   'Open manhole near King''s Circle, Dr. Babasaheb Ambedkar Road — extremely dangerous in monsoon water', 
+   'An open manhole near King''s Circle on Dr. Babasaheb Ambedkar Road is completely submerged under monsoon waterlogging, making it a death trap for pedestrians and motorists. Shockingly, a BMC official himself fell into an uncovered maintenance hole during a pre-monsoon inspection nearby. This highlights the absolute negligence. The hole must be covered immediately before a tragedy occurs.', 
+   'e0000000-0000-0000-0000-000000000006', 'critical', 'community_verification_pending', 'c0000000-0000-0000-0000-000000000001', 19.0268, 72.8570, 'Dr. Babasaheb Ambedkar Road, near King''s Circle, Mumbai', 'Ward 12 - G South', '2026-06-25 15:45:00+05:30', '2026-06-25 15:45:00+05:30'),
+
+  -- Chennai Issue (c0000000-0000-0000-0000-000000000004)
+  ('15500000-0000-0000-0001-000000000002', 'f0000000-0000-0000-0004-000000000005', 
+   'Veeranam tank water levels critically low — water supply disruptions expected', 
+   'The water level at Veeranam tank has plummeted to just 29% of its total storage capacity. Due to the delayed release of water from the Mettur dam, metro water supply disruptions are highly likely in several parts of Chennai. Residents are advised to store water and use it conservatively. We need GCC and CMWSSB to arrange emergency tanker services for affected blocks.', 
+   'e0000000-0000-0000-0000-000000000003', 'high', 'submitted', 'c0000000-0000-0000-0000-000000000004', 13.0400, 80.2400, 'Veeranam Pipeline Grid, Chennai', 'Ward Officer, Chromepet Zone', '2026-06-28 08:30:00+05:30', '2026-06-28 08:30:00+05:30')
+ON CONFLICT (id) DO NOTHING;
+
+-- 6. SEED ISSUE TIMELINES
+INSERT INTO public.issue_timeline (id, issue_id, actor_id, previous_status, new_status, note, created_at) VALUES
+  ('15510000-0000-0000-0000-000000000001', '15500000-0000-0000-0001-000000000001', 'f0000000-0000-0000-0001-000000000003', NULL, 'community_verification_pending', 'Issue reported and awaiting community confirmations.', '2026-06-25 15:45:00+05:30'),
+  ('15510000-0000-0000-0000-000000000002', '15500000-0000-0000-0001-000000000002', 'f0000000-0000-0000-0004-000000000005', NULL, 'submitted', 'Issue submitted to the platform.', '2026-06-28 08:30:00+05:30')
+ON CONFLICT (id) DO NOTHING;
+
+-- 7. SEED ENGAGEMENT (SUPPORTS, CONFIRMATIONS, COMMENTS)
+-- Supports
+INSERT INTO public.supports (user_id, discussion_id, issue_id) VALUES
+  ('f0000000-0000-0000-0002-000000000001', 'd1500000-0000-0000-0001-000000000001', NULL),
+  ('f0000000-0000-0000-0002-000000000005', 'd1500000-0000-0000-0001-000000000001', NULL),
+  ('f0000000-0000-0000-0002-000000000002', 'd1500000-0000-0000-0001-000000000002', NULL),
+  ('f0000000-0000-0000-0001-000000000001', 'd1500000-0000-0000-0001-000000000003', NULL),
+  ('f0000000-0000-0000-0001-000000000006', 'd1500000-0000-0000-0001-000000000003', NULL),
+  ('f0000000-0000-0000-0003-000000000003', 'd1500000-0000-0000-0001-000000000004', NULL),
+  ('f0000000-0000-0000-0004-000000000003', 'd1500000-0000-0000-0001-000000000005', NULL),
+  ('f0000000-0000-0000-0005-000000000002', 'd1500000-0000-0000-0001-000000000006', NULL),
+  ('f0000000-0000-0000-0005-000000000003', 'd1500000-0000-0000-0001-000000000006', NULL),
+  ('f0000000-0000-0000-0001-000000000004', NULL, '15500000-0000-0000-0001-000000000001'),
+  ('f0000000-0000-0000-0001-000000000005', NULL, '15500000-0000-0000-0001-000000000001'),
+  ('f0000000-0000-0000-0004-000000000006', NULL, '15500000-0000-0000-0001-000000000002')
+ON CONFLICT DO NOTHING;
+
+-- Confirmations for the critical open manhole
+INSERT INTO public.confirmations (user_id, issue_id, confirmation_type, created_at) VALUES
+  ('f0000000-0000-0000-0001-000000000001', '15500000-0000-0000-0001-000000000001', 'existence', '2026-06-25 16:30:00+05:30'),
+  ('f0000000-0000-0000-0001-000000000006', '15500000-0000-0000-0001-000000000001', 'existence', '2026-06-25 17:15:00+05:30')
+ON CONFLICT DO NOTHING;
+
+-- Comments
+INSERT INTO public.comments (author_id, issue_id, discussion_id, content, created_at, updated_at) VALUES
+  ('f0000000-0000-0000-0002-000000000003', NULL, 'd1500000-0000-0000-0001-000000000001', 'This is a systemic failure. The testing agency has been acting like a black box for far too long. We need transparency, independent tech audits, and decentralization of exams.', '2026-06-22 12:00:00+05:30', '2026-06-22 12:00:00+05:30'),
+  ('f0000000-0000-0000-0001-000000000006', '15500000-0000-0000-0001-000000000001', NULL, 'I had to drive through Ambedkar Road yesterday and the waterlogging was terrible. You literally cannot see where the road ends and the open drain starts. BMC must patch this now!', '2026-06-25 18:00:00+05:30', '2026-06-25 18:00:00+05:30')
+ON CONFLICT DO NOTHING;
+
+-- 8. RECALCULATE STATISTICS TO MAINTAIN CONSISTENCY
+-- Sync counts on discussions
+UPDATE public.discussions d
+SET
+  support_count = (SELECT COUNT(*) FROM public.supports WHERE discussion_id = d.id),
+  comment_count = (SELECT COUNT(*) FROM public.comments WHERE discussion_id = d.id)
+WHERE id::text LIKE 'd1500000-0000-0000-0001-%';
+
+-- Sync counts on issue reports
+UPDATE public.issue_reports ir
+SET
+  support_count = (SELECT COUNT(*) FROM public.supports WHERE issue_id = ir.id),
+  confirmation_count = (SELECT COUNT(*) FROM public.confirmations WHERE issue_id = ir.id AND confirmation_type = 'existence'),
+  resolution_confirmation_count = (SELECT COUNT(*) FROM public.confirmations WHERE issue_id = ir.id AND confirmation_type = 'resolution'),
+  comment_count = (SELECT COUNT(*) FROM public.comments WHERE issue_id = ir.id)
+WHERE id::text LIKE '15500000-0000-0000-0001-%';
+
+-- Sync profiles counts and scores
+UPDATE public.profiles p
+SET
+  issues_raised_count = (SELECT COUNT(*) FROM public.issue_reports WHERE author_id = p.id),
+  issues_resolved_count = (SELECT COUNT(*) FROM public.issue_reports WHERE author_id = p.id AND status = 'closed'),
+  supports_given_count = (SELECT COUNT(*) FROM public.supports WHERE user_id = p.id),
+  confirmations_given_count = (SELECT COUNT(*) FROM public.confirmations WHERE user_id = p.id AND confirmation_type = 'existence'),
+  contribution_score = 
+    ((SELECT COUNT(*) FROM public.issue_reports WHERE author_id = p.id) * 10) + 
+    ((SELECT COUNT(*) FROM public.supports WHERE user_id = p.id) * 2) + 
+    ((SELECT COUNT(*) FROM public.confirmations WHERE user_id = p.id AND confirmation_type = 'existence') * 5)
+WHERE id::text LIKE 'f0000000-%';

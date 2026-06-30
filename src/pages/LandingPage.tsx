@@ -388,7 +388,8 @@ export const LandingPage: React.FC = () => {
           borderRadius: 'var(--radius-lg)',
           padding: '2.5rem',
           width: '100%',
-          margin: 50
+          marginTop: 50,
+          marginBottom: 50,
         }}
       >
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 align-center">
